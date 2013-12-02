@@ -1,0 +1,34 @@
+lib-cov
+*.seed
+*.log
+*.csv
+*.dat
+*.out
+*.pid
+*.gz
+
+pids
+logs
+results
+
+npm-debug.log
+node_modules
+setup
+
+# Temp files
+*~
+
+# Auto generated css & js
+public/css/custom/*.css
+public/css/style.min.css
+public/js/**.min.map.js
+public/js/script.min.js
+
+# Configuration files
+**/*.development.json
+**/*.staging.json
+**/*.production.json
+**/*.uat.json
+
+#designer garbage
+.DS_Store

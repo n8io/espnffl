@@ -1,0 +1,22 @@
+{
+  "name": "ESPN FFL Api",
+  "hostname": "0.0.0.0",
+  "port": 81,
+  "compression": {
+    "enabled": true
+  },
+  "logger": {
+    "name": "default",
+    "src": true,
+    "enableConsole": true,
+    "streams": [
+      {
+        "level": "debug",
+        "type": "rotating-file",
+        "path": "logs/log.log",
+        "period": "1d",
+        "count": 7
+      }
+    ]
+  }
+}
