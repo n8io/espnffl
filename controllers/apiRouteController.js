@@ -9,7 +9,7 @@ var _ = require('underscore'),
 
 var apiRouteController = function(){};
 
-var leagueId, seasonId, logicalSeasonId;
+var leagueId, seasonId, weekId, logicalSeasonId;
 
 var isSeasonConcluded = false;
 
@@ -177,8 +177,75 @@ apiRouteController.Settings = function (req, res) {
   );
 };
 
+apiRouteController.WeekScores = function (req, res) {
+  leagueId = req.params.leagueId || -1;
+  seasonId = req.params.seasonId || -1;
+  weekId = req.params.weekId || -1;
+
+  leagueId = parseInt(leagueId, 0);
+  seasonId = parseInt(seasonId, 0);
+  weekId = parseInt(weekId, 0);
+
+  if(leagueId <= 0 || seasonId <= 0 || weekId <= 0){
+    return res.status(400).json({ 'message' : 'A valid leagueId, seasonId, and weekId must be provided.' });
+  }
+
+  logicalSeasonId = moment().get('month') < 8 ? moment().get('year') - 1 : moment().get('year');
+  isSeasonConcluded = logicalSeasonId > seasonId || (seasonId + 1 === moment().get('year') && moment().get('month') > 1);
+
+  request = require('request');
+  request = request.defaults({jar:true}); //Create a new cookie jar for maintaining auth
+
+  async.series(
+    {
+      espnAuth: authenticateEspnCredentials,
+      scrapeWeekScores: scrapeWeekScores
+    },
+    // On Complete
+    function(err, results){
+      if(err){
+        return res.status(500).json({ 'message' : 'Failed to retrieve the given weeks scores.' });
+      }
+      return res.status(200).json(results.scrapeWeekScores);
+    }
+  );
+};
+
+apiRouteController.TeamSchedule = function (req, res) {
+  leagueId = req.params.leagueId || -1;
+  seasonId = req.params.seasonId || -1;
+  teamId = req.params.teamId || -1;
+
+  leagueId = parseInt(leagueId, 0);
+  seasonId = parseInt(seasonId, 0);
+  teamId = parseInt(teamId, 0);
+
+  if(leagueId <= 0 || seasonId <= 0 || teamId <= 0){
+    return res.status(400).json({ 'message' : 'A valid leagueId, seasonId, and teamId must be provided.' });
+  }
+
+  logicalSeasonId = moment().get('month') < 8 ? moment().get('year') - 1 : moment().get('year');
+  isSeasonConcluded = logicalSeasonId > seasonId || (seasonId + 1 === moment().get('year') && moment().get('month') > 1);
+
+  request = require('request');
+  request = request.defaults({jar:true}); //Create a new cookie jar for maintaining auth
+
+  async.series(
+    {
+      espnAuth: authenticateEspnCredentials,
+      scrapeTeamSchedule: scrapeTeamSchedule
+    },
+    // On Complete
+    function(err, results){
+      if(err){
+        return res.status(500).json({ 'message' : 'Failed to retrieve the given weeks scores.' });
+      }
+      return res.status(200).json(results.scrapeTeamSchedule);
+    }
+  );
+};
+
 var authenticateEspnCredentials = function(callback){
-  console.log(JSON.stringify(options, null, 2));
   // language=en&affiliateName=espn&appRedirect=http%3A%2F%2Fespn.go.com%2F&parentLocation=http%3A%2F%2Fespn.go.com%2F&registrationFormId=espn
   var authOptions = {
     username: options.access.username,
@@ -494,7 +561,7 @@ var scrapeFinalStandings = function(callback){
 
     _(seasonOpts).each(function(html){
       var year = $(html).val();
-      if(parseInt(year)){
+      if(parseInt(year, 0)){
         year = parseInt(year);
         if($(html).attr('selected')){
           currentSeasonId = year;
@@ -563,12 +630,12 @@ var scrapeFinalStandings = function(callback){
         isComplete: isSeasonConcluded
       },
       standings: standings
-    }
+    };
 
     callback(null, data);
     return;
   });
-}
+};
 
 var scrapeLeagueSettings = function(callback){
   var reqOpt = {
@@ -863,6 +930,149 @@ var scrapeLeagueSettings = function(callback){
   });
 };
 
+var scrapeWeekScores = function(callback){
+  var reqOpt = {
+    url: 'http://games.espn.go.com/ffl/scoreboard?leagueId=' + leagueId + '&seasonId=' + seasonId + '&scoringPeriodId=' + weekId
+  };
+
+  request.get(reqOpt, function(err, result, body){
+    if(err){
+      console.log('Failed to retrieve given league and season.'.red);
+      callback(err, null);
+      return;
+    }
+
+    $ = cheerio.load(body);
+
+    var htmlMatchups = $('#scoreboardMatchups').find('.matchup');
+    if(!htmlMatchups || htmlMatchups.length === 0){
+      console.log('Failed to retrieve week\'s scores. League/season/week combination may not be complete or valid.'.red);
+      callback(1, null);
+      return;
+    }
+
+    var timestamp = moment().utc().format();
+    var scores = [];
+    var winnersAreSet = $(htmlMatchups).find('.winning').length > 0;
+    _(htmlMatchups).each(function(matchup, index){
+      var rows = $(matchup).find('tr');
+      if(rows.length <= 0){
+        console.log('Failed to retrieve week\'s scores. Could not find matchup rows.'.red);
+        callback(1, null);
+        return;
+      }
+
+      var lastRecordedScore = 0;
+      var isWinnerDecided = $(matchup).find('.winning').length > 0;
+      _(rows).each(function(row,rindex){
+        if(rindex != 2) {
+          var teamLink = $(row).find('.team .name a');
+          var teamId = getTeamIdFromUrl($(teamLink).attr('href'));
+          var teamName = $(teamLink).attr('title').split(' (')[0].replace('  ', ' ');
+          var teamAbbr = _.str.trim($(row).find('.team .name .abbrev').text(), ['(', ')', ' ']);
+          var ownerName = _.str.titleize($(row).find('.team .owners a').eq(0).text());
+          var score = parseFloat($(row).find('.score').text(),2);
+          var outcome = 'undetermined';
+          var isWinner = $(row).find('.score').hasClass('winning');
+
+          if(isWinnerDecided && !isWinner){
+            outcome = 'loss';
+          }
+          else if (isWinnerDecided && isWinner) {
+            outcome = 'win';
+          }
+          else if (winnersAreSet){
+            outcome = 'tie';
+          }
+
+          scores.push({
+            matchup: {
+              id: index
+            },
+            score: score,
+            isHomeTeam: rindex === 1,
+            isWinner: isWinner,
+            outcome: outcome,
+            team: {
+              id: teamId,
+              name: teamName,
+              abbrev: teamAbbr
+            },
+            owner: {
+              firstName: ownerName.split(' ')[0],
+              lastName: ownerName.split(' ')[1]
+            }
+          });
+        }
+      });
+    });
+
+    var data = {
+      timestamp: timestamp,
+      season: {
+        id: seasonId,
+        isComplete: isSeasonConcluded
+      },
+      scores: scores
+    };
+
+    callback(null, data);
+    return;
+  });
+};
+
+var scrapeTeamSchedule = function(callback){
+  var reqOpt = {
+    url: 'http://games.espn.go.com/ffl/schedule?leagueId=' + leagueId + '&seasonId=' + seasonId + '&teamId=' + teamId
+  };
+
+  request.get(reqOpt, function(err, result, body){
+    if(err){
+      console.log('Failed to retrieve given league, season, and team.'.red);
+      callback(err, null);
+      return;
+    }
+
+    $ = cheerio.load(body);
+
+    var rows = _($('tr.tableSubHead').eq(0).siblings()).rest(1);
+    if(!rows || rows.length === 0){
+      console.log('Failed to retrieve team\'s schedule. League/season/team combination may not be valid.'.red);
+      callback(1, null);
+      return;
+    }
+
+    var timestamp = moment().utc().format();
+    var outcomes = [];
+
+    _(rows).each(function(row, index){
+      var record = {wins:null,losses:null,ties:null}; //Calculate it later if season is not concluded
+      if(isSeasonConcluded){
+        record = getOverallRecord($(row).find('td').eq(1).text());
+      }
+      var result = getGameResults(_.str.trim($(row).find('td').eq(isSeasonConcluded ? 2 : 1).text()));
+      var isHomeGame = _.str.trim($(row).find('td').eq(isSeasonConcluded ? 3 : 2).text()).toLowerCase() === '';
+
+      outcomes.push({
+        isHomeGame: isHomeGame,
+        recordSnapshot: record,
+        result: result
+      });
+    });
+
+    var data = {
+      timestamp: timestamp,
+      season: {
+        id: seasonId,
+        isComplete: isSeasonConcluded
+      },
+      outcomes: outcomes
+    };
+
+    callback(null, data);
+    return;
+  });
+};
 
 function getTeamIdFromUrl(urlStr){
   if(!urlStr) return -1;
@@ -913,6 +1123,37 @@ function getOverallRecord(str){
     wins: wins,
     losses: losses,
     ties: ties
+  };
+}
+
+function getGameResults(str){
+  var parts = str.split(' ');
+
+  if(parts.length < 2){
+    return {
+      isWinner: false,
+      outcome: 'undertermined',
+      scores: {
+        team: null,
+        opponent: null
+      }
+    };
+  }
+
+  var sparts = parts[1].split('-');
+  var score1 = parseFloat(sparts[0],2) || 0;
+  var score2 = parseFloat(sparts[1],2) || 0;
+  var outcome = parts[0].toLowerCase() === 'w' ? 'win' : (parts[0].toLowerCase() === 'l' ? 'loss' : 'tie');
+  var max = [score1,score2].sort()[1];
+  var min = [score1,score2].sort()[0];
+
+  return {
+    isWinner: outcome === 'win',
+    outcome: outcome,
+    scores: {
+      team: outcome === 'win' ? max : min,
+      opponent: outcome === 'win' ? min : max
+    }
   };
 }
 

@@ -13,7 +13,9 @@ module.exports = function(app, options){
     { "method": "get",  "path" : "/:leagueId/:seasonId/members",            "controller" : "apiRouteController",  "action" : "Members" },
     { "method": "get",  "path" : "/:leagueId/:seasonId/transactioncounts",  "controller" : "apiRouteController",  "action" : "TransactionCounts" },
     { "method": "get",  "path" : "/:leagueId/:seasonId/finalstandings",     "controller" : "apiRouteController",  "action" : "FinalStandings" },
-    { "method": "get",  "path" : "/:leagueId/:seasonId/settings",           "controller" : "apiRouteController",  "action" : "Settings" }
+    { "method": "get",  "path" : "/:leagueId/:seasonId/settings",           "controller" : "apiRouteController",  "action" : "Settings" },
+    { "method": "get",  "path" : "/:leagueId/:seasonId/:teamId/schedule",   "controller" : "apiRouteController",  "action" : "TeamSchedule" },
+    { "method": "get",  "path" : "/:leagueId/:seasonId/:weekId/scores",     "controller" : "apiRouteController",  "action" : "WeekScores" }
   ];
 
   var defaultHttpMethod = "get";

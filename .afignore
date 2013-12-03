@@ -13,6 +13,7 @@ results
 npm-debug.log
 node_modules
 setup
+logs
 
 # Temp files
 *~
@@ -25,3 +26,4 @@ public/js/script.min.js
 
 #designer garbage
 .DS_Store
+test.htm

@@ -12,7 +12,9 @@ module.exports = function(app, options){
         '/:leagueId/:seasonId/members',
         "/:leagueId/:seasonId/transactioncounts",
         '/:leagueId/:seasonId/finalstandings',
-        "/:leagueId/:seasonId/settings"
+        "/:leagueId/:seasonId/settings",
+        "/:leagueId/:seasonId/:teamId/schedule",
+        "/:leagueId/:seasonId/:weekId/scores"
       ]);
     }
 

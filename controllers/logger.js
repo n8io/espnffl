@@ -1,8 +1,19 @@
-var bunyan = require('bunyan');
+var
+  bunyan = require('bunyan'),
+  mkdirp = require('mkdirp'),
+  fs = require('fs');
 
 var logger = function(){};
 
 logger.getLogger = function getLogger(options){
+  if(!fs.existsSync('./logs')){
+    mkdirp.sync('logs');
+  }
+
+  if(!fs.existsSync('./logs/log.log')){
+    fs.writeFileSync('./logs/log.log','');
+  }
+
   if(!(options && options.streams)) {
     throw new Error('Invalid logger configuration.');
   }
