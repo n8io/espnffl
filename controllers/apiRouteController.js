@@ -9,7 +9,7 @@ var _ = require('underscore'),
 
 var apiRouteController = function(){};
 
-var leagueId, seasonId, weekId, logicalSeasonId;
+var leagueId, seasonId, weekId, teamId, logicalSeasonId;
 
 var isSeasonConcluded = false;
 
@@ -352,6 +352,9 @@ var scrapeMembers = function(callback){
     teams = _(teams).sortBy('id');
     var data = {
       timestamp: moment().utc().format(),
+      league: {
+        id: leagueId
+      },
       season: {
         id: currentSeasonId,
         isComplete: isSeasonConcluded
@@ -404,14 +407,14 @@ var scrapeLeagueInfo = function(callback){
     seasons = _(seasons).sort();
     var data = {
       timestamp: moment().utc().format(),
-      season: {
-        id: currentSeasonId,
-        isComplete: isSeasonConcluded
-      },
       league: {
         id: leagueId,
         name: leagueName,
         seasons: seasons
+      },
+      season: {
+        id: currentSeasonId,
+        isComplete: isSeasonConcluded
       }
     };
 
@@ -525,6 +528,9 @@ var scrapeTransactionCounter = function(callback){
 
     var data = {
       timestamp: moment().utc().format(),
+      league: {
+        id: leagueId
+      },
       season: {
         id: currentSeasonId,
         isComplete: isSeasonConcluded
@@ -625,6 +631,9 @@ var scrapeFinalStandings = function(callback){
 
     var data = {
       timestamp: moment().utc().format(),
+      league: {
+        id: leagueId
+      },
       season: {
         id: currentSeasonId,
         isComplete: isSeasonConcluded
@@ -907,6 +916,9 @@ var scrapeLeagueSettings = function(callback){
 
     var data = {
       timestamp: moment().utc().format(),
+      league: {
+        id: leagueId
+      },
       season: {
         id: seasonId,
         isComplete: isSeasonConcluded
@@ -1009,6 +1021,9 @@ var scrapeWeekScores = function(callback){
 
     var data = {
       timestamp: timestamp,
+      league: {
+        id: leagueId
+      },
       season: {
         id: seasonId,
         isComplete: isSeasonConcluded
@@ -1060,11 +1075,21 @@ var scrapeTeamSchedule = function(callback){
       });
     });
 
+    if(!isSeasonConcluded){
+      outcomes = calculateRunningRecord(outcomes);
+    }
+
     var data = {
       timestamp: timestamp,
+      league: {
+        id: leagueId
+      },
       season: {
         id: seasonId,
         isComplete: isSeasonConcluded
+      },
+      team: {
+        id: teamId
       },
       outcomes: outcomes
     };
@@ -1132,7 +1157,7 @@ function getGameResults(str){
   if(parts.length < 2){
     return {
       isWinner: false,
-      outcome: 'undertermined',
+      outcome: 'undetermined',
       scores: {
         team: null,
         opponent: null
@@ -1155,6 +1180,40 @@ function getGameResults(str){
       opponent: outcome === 'win' ? min : max
     }
   };
+}
+
+function calculateRunningRecord(outcomes){
+  _(outcomes).each(function(o,i){
+    if(o.result.outcome != 'undetermined'){
+      var wins = i === 0 ? 0 : outcomes[i-1].recordSnapshot.wins;
+      var losses = i === 0 ? 0 : outcomes[i-1].recordSnapshot.losses;
+      var ties = i === 0 ? 0 : outcomes[i-1].recordSnapshot.ties;
+
+      if(o.result.outcome === 'win'){
+        o.recordSnapshot = {
+          wins: wins+1,
+          losses: losses,
+          ties: ties
+        };
+      }
+      else if(o.result.outcome === 'loss'){
+        o.recordSnapshot = {
+          wins: wins,
+          losses: losses+1,
+          ties: ties
+        };
+      }
+      else{
+        o.recordSnapshot = {
+          wins: wins,
+          losses: losses,
+          ties: ties+1
+        };
+      }
+    }
+  }, outcomes);
+
+  return outcomes;
 }
 
 module.exports = apiRouteController;

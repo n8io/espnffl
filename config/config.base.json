@@ -1,7 +1,7 @@
 {
   "name": "ESPN FFL Api",
   "hostname": "0.0.0.0",
-  "port": 81,
+  "port": 80,
   "compression": {
     "enabled": true
   },
