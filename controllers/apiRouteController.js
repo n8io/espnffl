@@ -245,6 +245,38 @@ apiRouteController.TeamSchedule = function (req, res) {
   );
 };
 
+apiRouteController.DraftRecap = function (req, res) {
+  leagueId = req.params.leagueId || -1;
+  seasonId = req.params.seasonId || -1;
+
+  leagueId = parseInt(leagueId, 0);
+  seasonId = parseInt(seasonId, 0);
+
+  if(leagueId <= 0 || seasonId <= 0){
+    return res.status(400).json({ 'message' : 'A valid leagueId and seasonId must be provided.' });
+  }
+
+  logicalSeasonId = moment().get('month') < 8 ? moment().get('year') - 1 : moment().get('year');
+  isSeasonConcluded = logicalSeasonId > seasonId || (seasonId + 1 === moment().get('year') && moment().get('month') > 1);
+
+  request = require('request');
+  request = request.defaults({jar:true}); //Create a new cookie jar for maintaining auth
+
+  async.series(
+    {
+      espnAuth: authenticateEspnCredentials,
+      scrapeDraftRecap: scrapeDraftRecap
+    },
+    // On Complete
+    function(err, results){
+      if(err){
+        return res.status(500).json({ 'message' : 'Failed to retrieve the given weeks scores.' });
+      }
+      return res.status(200).json(results.scrapeDraftRecap);
+    }
+  );
+};
+
 var authenticateEspnCredentials = function(callback){
   // language=en&affiliateName=espn&appRedirect=http%3A%2F%2Fespn.go.com%2F&parentLocation=http%3A%2F%2Fespn.go.com%2F&registrationFormId=espn
   var authOptions = {
@@ -1067,11 +1099,26 @@ var scrapeTeamSchedule = function(callback){
       }
       var result = getGameResults(_.str.trim($(row).find('td').eq(isSeasonConcluded ? 2 : 1).text()));
       var isHomeGame = _.str.trim($(row).find('td').eq(isSeasonConcluded ? 3 : 2).text()).toLowerCase() === '';
+      var opponentLink = $(row).find('td').eq(isSeasonConcluded ? 4 : 3).find('a');
+      var ownerName = _.str.titleize(_.str.trim($(opponentLink).attr('title').split('(')[1], [')',' ']));
+
+      var opponent = {
+        id: getTeamIdFromUrl($(opponentLink).attr('href')),
+        name: _.str.trim($(opponentLink).text()),
+        owner: {
+          firstName: ownerName.split(' ')[0],
+          lastName: ownerName.split(' ')[1]
+        }
+      };
 
       outcomes.push({
+        week: {
+          id: index+1
+        },
         isHomeGame: isHomeGame,
         recordSnapshot: record,
-        result: result
+        result: result,
+        opponent: opponent
       });
     });
 
@@ -1092,6 +1139,86 @@ var scrapeTeamSchedule = function(callback){
         id: teamId
       },
       outcomes: outcomes
+    };
+
+    callback(null, data);
+    return;
+  });
+};
+
+var scrapeDraftRecap = function(callback){
+  var reqOpt = {
+    url: 'http://games.espn.go.com/ffl/tools/draftrecap?leagueId=' + leagueId + '&seasonId=' + seasonId
+  };
+
+  request.get(reqOpt, function(err, result, body){
+    if(err){
+      console.log('Failed to retrieve given league and season.'.red);
+      callback(err, null);
+      return;
+    }
+
+    $ = cheerio.load(body);
+
+    var rounds = $('tr.tableHead');
+    if(!rounds || rounds.length === 0){
+      console.log('Failed to retrieve draft recap. League/season combination may not be valid.'.red);
+      callback(1, null);
+      return;
+    }
+
+    var timestamp = moment().utc().format();
+    var draftRounds = [];
+    _(rounds).each(function(r, index){
+      var draftPicks = [];
+      var rows = $(r).siblings();
+      _(rows).each(function(row, jndex){
+        var pickNumber = parseInt(_.str.trim($(row).find('td').eq(0).text()),0);
+        var playerInfo = getPlayerInfo(_.str.trim($(row).find('td').eq(1).text()));
+        var playerLink = $(row).find('td').eq(1).find('a');
+        var teamLink = $(row).find('td').eq(2).find('a');
+        var teamId = getTeamIdFromUrl($(teamLink).attr('href'));
+        var ownerName = _.str.titleize(_.str.trim($(teamLink).attr('title').split('(')[1].split(')'))).split(',').join('');
+
+        var draftPick = {player:playerInfo};
+
+        if(playerLink){
+          draftPick.player.id = parseInt($(playerLink).attr('playerid'),0);
+        }
+
+        _.extend(draftPick, {
+          pickNumber: pickNumber,
+          team: {
+            id: teamId,
+            name: _.str.trim($(teamLink).text()).split('  ').join('')
+          },
+          owner: {
+            firstName: ownerName.split(' ')[0],
+            lastName: ownerName.split(' ')[1]
+          }
+        });
+
+        draftPicks.push(draftPick)
+      });
+
+      var round = {
+        id: index+1,
+        picks: draftPicks
+      };
+
+      draftRounds.push(round);
+    });
+
+    var data = {
+      timestamp: timestamp,
+      league: {
+        id: leagueId
+      },
+      season: {
+        id: seasonId,
+        isComplete: isSeasonConcluded
+      },
+      rounds: draftRounds
     };
 
     callback(null, data);
@@ -1214,6 +1341,35 @@ function calculateRunningRecord(outcomes){
   }, outcomes);
 
   return outcomes;
+}
+
+function getPlayerInfo(pstr){
+  var pi = {
+    firstName: null,
+    lastName: null,
+    team: {
+      abbrev: null
+    },
+    position: null,
+    isKeeper: false
+  };
+
+  if(!pstr) return pi;
+
+  var s = pstr.split('*').join('');
+  var firstName = _.str.words(s)[0];
+  var lastName = _.str.words(s)[1].split(',').join('');
+  var teamAbbr = _.str.words(s)[2].toUpperCase();
+  var position = _.str.words(s)[3];
+  var isKeeper = _.str.words(s).length > 4;
+
+  pi.firstName = firstName;
+  pi.lastName = lastName;
+  pi.team.abbrev = teamAbbr;
+  pi.position = position;
+  pi.isKeeper = isKeeper;
+
+  return pi;
 }
 
 module.exports = apiRouteController;
