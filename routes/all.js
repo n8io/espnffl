@@ -10,6 +10,7 @@ module.exports = function(app, options){
       return res.json(200, [
         '/:leagueId/:seasonId',
         '/:leagueId/:seasonId/members',
+        '/:leagueId/:seasonId/draftrecap',
         "/:leagueId/:seasonId/transactioncounts",
         '/:leagueId/:seasonId/finalstandings',
         "/:leagueId/:seasonId/settings",

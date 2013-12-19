@@ -12,3 +12,17 @@ applications:
     url: ${name}.${target-base}
     mem: 64M
     instances: 1
+  espnffl:
+    name: espnffl
+    framework:
+      name: standalone
+      info:
+        mem: 64M
+        description: Standalone Application
+        exec: 
+    runtime: node10
+    command: node app.js
+    infra: aws
+    url: 
+    mem: 64M
+    instances: 1

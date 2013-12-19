@@ -54,12 +54,16 @@ apiRouteController.Info = function (req, res) {
   leagueId = parseInt(leagueId, 0);
   seasonId = parseInt(seasonId, 0);
 
-  if(leagueId <= 0 || seasonId <= 0){
-    return res.status(400).json({ 'message' : 'A valid leagueId and seasonId must be provided.' });
+  console.log('seasonId',seasonId);
+
+  var tempSeasonId = seasonId == -1 ? 9999 : seasonId;
+
+  if(leagueId <= 0 || (leagueId > 0 && tempSeasonId <= 0)){
+    return res.status(400).json({ 'message' : 'A valid leagueId must be provided.' });
   }
 
   logicalSeasonId = moment().get('month') < 8 ? moment().get('year') - 1 : moment().get('year');
-  isSeasonConcluded = logicalSeasonId > seasonId || (seasonId + 1 === moment().get('year') && moment().get('month') > 1);
+  isSeasonConcluded = logicalSeasonId > tempSeasonId || (seasonId + 1 === moment().get('year') && moment().get('month') > 1);
 
   request = require('request');
   request = request.defaults({jar:true}); //Create a new cookie jar for maintaining auth
@@ -401,7 +405,7 @@ var scrapeMembers = function(callback){
 
 var scrapeLeagueInfo = function(callback){
   var reqOpt = {
-    url: 'http://games.espn.go.com/ffl/leaguesetup/ownerinfo?leagueId=' + leagueId + '&seasonId=' + seasonId
+    url: 'http://games.espn.go.com/ffl/leaguesetup/ownerinfo?leagueId=' + leagueId + (seasonId > 0 ? '&seasonId=' + seasonId : '')
   };
 
   request.get(reqOpt, function(err, result, body){
@@ -445,7 +449,7 @@ var scrapeLeagueInfo = function(callback){
         seasons: seasons
       },
       season: {
-        id: currentSeasonId,
+        id: (seasonId == -1 ? logicalSeasonId : currentSeasonId),
         isComplete: isSeasonConcluded
       }
     };
@@ -626,7 +630,7 @@ var scrapeFinalStandings = function(callback){
     _(rows).each(function(row){
       var place = parseInt($(row).find('td').eq(0).text(),0);
       var teamLink = $(row).find('td').eq(1).find('a');
-      var teamName = $(teamLink).text().replace('  ', ' ');
+      var teamName = _.str.trim($(teamLink).text().replace('  ', ' '));
       var teamId = getTeamIdFromUrl($(teamLink).attr('href'));
       var ownerLink = $(row).find('td').eq(2).find('a');
       var ownerName = _.str.titleize($(ownerLink).text());
@@ -1344,6 +1348,7 @@ function calculateRunningRecord(outcomes){
 }
 
 function getPlayerInfo(pstr){
+  console.log(pstr);
   var pi = {
     firstName: null,
     lastName: null,
@@ -1357,6 +1362,11 @@ function getPlayerInfo(pstr){
   if(!pstr) return pi;
 
   var s = pstr.split('*').join('');
+
+  if(_.str.words(s).length < 4){
+    return pi;
+  }
+
   var firstName = _.str.words(s)[0];
   var lastName = _.str.words(s)[1].split(',').join('');
   var teamAbbr = _.str.words(s)[2].toUpperCase();
@@ -1368,6 +1378,11 @@ function getPlayerInfo(pstr){
   pi.team.abbrev = teamAbbr;
   pi.position = position;
   pi.isKeeper = isKeeper;
+
+  if(lastName == 'D/ST'){
+    pi.firstName = null,
+    pi.lastName = null
+  }
 
   return pi;
 }
