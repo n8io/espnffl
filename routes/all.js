@@ -15,7 +15,8 @@ module.exports = function(app, options){
         '/:leagueId/:seasonId/finalstandings',
         "/:leagueId/:seasonId/settings",
         "/:leagueId/:seasonId/:teamId/schedule",
-        "/:leagueId/:seasonId/:weekId/scores"
+        "/:leagueId/:seasonId/:weekId/scores",
+        "/:leagueId/:seasonId/:weekId/:teamId/matchup"
       ]);
     }
 

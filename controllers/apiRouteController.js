@@ -281,6 +281,42 @@ apiRouteController.DraftRecap = function (req, res) {
   );
 };
 
+apiRouteController.Matchup = function (req, res) {
+  leagueId = req.params.leagueId || -1;
+  seasonId = req.params.seasonId || -1;
+  weekId = req.params.weekId || -1;
+  teamId = req.params.teamId || -1;
+
+  leagueId = parseInt(leagueId, 0);
+  seasonId = parseInt(seasonId, 0);
+  weekId = parseInt(weekId, 0);
+  teamId = parseInt(teamId, 0);
+
+  if(leagueId <= 0 || seasonId <= 0 || weekId <= 0 || teamId <= 0){
+    return res.status(400).json({ 'message' : 'A valid leagueId/seasonId/weekId/teamId must be provided.' });
+  }
+
+  logicalSeasonId = moment().get('month') < 8 ? moment().get('year') - 1 : moment().get('year');
+  isSeasonConcluded = logicalSeasonId > seasonId || (seasonId + 1 === moment().get('year') && moment().get('month') > 1);
+
+  request = require('request');
+  request = request.defaults({jar:true}); //Create a new cookie jar for maintaining auth
+
+  async.series(
+    {
+      espnAuth: authenticateEspnCredentials,
+      scrapeMatchup: scrapeMatchup
+    },
+    // On Complete
+    function(err, results){
+      if(err){
+        return res.status(500).json({ 'message' : 'Failed to retrieve the given matchup.' });
+      }
+      return res.status(200).json(results.scrapeMatchup);
+    }
+  );
+};
+
 var authenticateEspnCredentials = function(callback){
   // language=en&affiliateName=espn&appRedirect=http%3A%2F%2Fespn.go.com%2F&parentLocation=http%3A%2F%2Fespn.go.com%2F&registrationFormId=espn
   var authOptions = {
@@ -1223,6 +1259,76 @@ var scrapeDraftRecap = function(callback){
         isComplete: isSeasonConcluded
       },
       rounds: draftRounds
+    };
+
+    callback(null, data);
+    return;
+  });
+};
+
+var scrapeMatchup = function(callback){
+  var reqOpt = {
+    url: 'http://games.espn.go.com/ffl/boxscorequick?leagueId=' + leagueId + '&seasonId=' + seasonId + '&scoringPeriodId=' + weekId + '&teamId=' + teamId + '&view=scoringperiod'
+  };
+
+  request.get(reqOpt, function(err, result, body){
+    if(err){
+      console.log('Failed to retrieve given league and season.'.red);
+      callback(err, null);
+      return;
+    }
+
+    $ = cheerio.load(body);
+
+    var playerTables = $('.playerTableTable');
+    if(!playerTables || playerTables.length === 0){
+      console.log('Failed to retrieve matchup\'s scores. League/season/week/team combination may not be complete or valid.'.red);
+      callback(1, null);
+      return;
+    }
+
+    var timestamp = moment().utc().format();
+    var teams = [];
+    var isBenchAvailable = $(playerTables).length == 4;
+    _(playerTables).each(function(table, index){
+      var starters = [];
+      var bench = [];
+      var rows = $(table).find('tr');
+      if(rows.length <= 0){
+        console.log('Failed to retrieve player\'s scores. Could not find player rows.'.red);
+        callback(1, null);
+        return;
+      }
+
+      rows = _(rows).rest(3);
+      rows = _(rows).initial(1);
+      rows = _(rows).map(function(r){
+        if(isBenchAvailable){
+          $(r).find('td').eq(0).remove();
+        }
+        return r;
+      });
+
+      _(rows).each(function(row, jndex){
+        if($(row).find('td').eq(2).text() === '') return;
+        var playerCell = $(row).find('td').eq(0);
+        console.log($(playerCell).text());
+      });
+    });
+
+    var data = {
+      timestamp: timestamp,
+      league: {
+        id: leagueId
+      },
+      season: {
+        id: seasonId,
+        isComplete: isSeasonConcluded
+      },
+      week: {
+        id: weekId
+      },
+      teams: teams
     };
 
     callback(null, data);
