@@ -1288,11 +1288,30 @@ var scrapeMatchup = function(callback){
     }
 
     var timestamp = moment().utc().format();
-    var teams = [];
+    var teams = [{ id: teamId, scores: { starters: 0, bench: 0 }, starters: [], bench: [] },{ id: null, scores: { starters: 0, bench: 0}, starters: [], bench: [] }];
+
+    var teamInfo = $('#teamInfos').children('div').eq(1);
+    var teamObj = $(teamInfo).children('div').children('div');
+    var teamLink = $(teamObj).children('a');
+    if($(teamLink).length === 0){
+      var html = $(teamObj).html();
+      html = _.str.strRight(html, 'LOGO.flashVars = "');
+      html = _.str.strLeft(html, '"');
+      var url = decodeURIComponent('/' + html);
+      var id = parseInt(getTeamIdFromUrl(url),0);
+      if(id !== teamId && id > 0){
+        teams[1].id = id;
+      }
+    }
+    else{
+      var id = parseInt(getTeamIdFromUrl($(teamLink).attr('href')),0);
+      if(id !== teamId && id > 0){
+        teams[1].id = id;
+      }
+    }
+
     var isBenchAvailable = $(playerTables).length == 4;
     _(playerTables).each(function(table, index){
-      var starters = [];
-      var bench = [];
       var rows = $(table).find('tr');
       if(rows.length <= 0){
         console.log('Failed to retrieve player\'s scores. Could not find player rows.'.red);
@@ -1300,8 +1319,7 @@ var scrapeMatchup = function(callback){
         return;
       }
 
-      rows = _(rows).rest(3);
-      rows = _(rows).initial(1);
+      rows = _(rows).rest(isBenchAvailable && index % 2 == 1 ? 2 : 3);;
       rows = _(rows).map(function(r){
         if(isBenchAvailable){
           $(r).find('td').eq(0).remove();
@@ -1309,12 +1327,45 @@ var scrapeMatchup = function(callback){
         return r;
       });
 
+      var teamIndex = (isBenchAvailable && index < 2) || (!isBenchAvailable && index == 0) ? 0 : 1
       _(rows).each(function(row, jndex){
         if($(row).find('td').eq(2).text() === '') return;
         var playerCell = $(row).find('td').eq(0);
-        console.log($(playerCell).text());
+        var playerInfo = getPlayerInfo($(playerCell).text());
+        playerInfo.id = getPlayerId($(playerCell).attr('id'));
+        var scoredPoints = parseFloat(_.str.trim($(row).find('td').eq(3).text()),2);
+        delete playerInfo.isKeeper;
+        playerInfo.points = scoredPoints;
+
+        playerInfo =
+          {
+            id: playerInfo.id,
+            firstName: playerInfo.firstName,
+            lastName: playerInfo.lastName,
+            team : playerInfo.team,
+            position: playerInfo.position,
+            points: playerInfo.points
+          };
+
+        var isStarters = !(isBenchAvailable && index % 2 == 1);
+
+        if(isStarters){
+          teams[teamIndex].starters.push(playerInfo);
+        }
+        else{
+          teams[teamIndex].bench.push(playerInfo);
+        }
       });
     });
+
+    _(teams).each(function(team, tindex){
+      team.scores.starters = _(team.starters).reduce(function(total, player){
+        return total + (player.points || 0);
+      },0);
+      team.scores.bench = _(team.bench).reduce(function(total, player){
+        return total + (player.points || 0);
+      },0);
+    }, teams);
 
     var data = {
       timestamp: timestamp,
@@ -1454,7 +1505,6 @@ function calculateRunningRecord(outcomes){
 }
 
 function getPlayerInfo(pstr){
-  console.log(pstr);
   var pi = {
     firstName: null,
     lastName: null,
@@ -1491,6 +1541,10 @@ function getPlayerInfo(pstr){
   }
 
   return pi;
+}
+
+function getPlayerId(str){
+  return parseInt(str.split('_')[1],0);
 }
 
 module.exports = apiRouteController;
