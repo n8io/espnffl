@@ -1330,10 +1330,10 @@ var scrapeMatchup = function(callback){
       var teamIndex = (isBenchAvailable && index < 2) || (!isBenchAvailable && index == 0) ? 0 : 1
       _(rows).each(function(row, jndex){
         if($(row).find('td').eq(2).text() === '') return;
-        var playerCell = $(row).find('td').eq(0);
+        var playerCell = $(row).find('td.playertablePlayerName');
         var playerInfo = getPlayerInfo($(playerCell).text());
         playerInfo.id = getPlayerId($(playerCell).attr('id'));
-        var scoredPoints = parseFloat(_.str.trim($(row).find('td').eq(3).text()),2);
+        var scoredPoints = parseFloat(_.str.trim($(row).find('td.appliedPoints').text()),2);
         delete playerInfo.isKeeper;
         playerInfo.points = scoredPoints;
 
