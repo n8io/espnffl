@@ -2,4 +2,4 @@
 Routes:
 ===
 
-* /endpoints
+* http://espnffl.herokuapp.com/endpoints
