@@ -4,6 +4,12 @@ _.str = require('underscore.string');
 moment = require('moment');
 config = require('nconf').env([ 'NODE_ENV' ]);
 stringify = require('json-stringify-safe');
+fs = require('fs');
+
+//Do some log cleanup
+fs.rmdirSync('./logs');
+fs.mkdirSync('./logs');
+fs.writeFileSync('./logs/log.log');
 
 var express = require("express"),
   http = require("http"),
