@@ -4,11 +4,13 @@ _.str = require('underscore.string');
 moment = require('moment');
 config = require('nconf').env([ 'NODE_ENV' ]);
 stringify = require('json-stringify-safe');
+mkdirp = require('mkdirp');
+rimraf = require('rimraf');
 fs = require('fs');
 
 //Do some log cleanup
-fs.rmdirSync('./logs');
-fs.mkdirSync('./logs');
+rimraf.sync('./logs');
+mkdirp.sync('./logs');
 fs.writeFileSync('./logs/log.log');
 
 var express = require("express"),
