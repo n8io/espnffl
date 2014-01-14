@@ -41,8 +41,8 @@ var cookieExpiration = 1 * 60 * 60 * 1000; // 1 hour // sliding in ms
 
 app.configure(function() {
   app.set("name", appName);
-  app.set("port", config.get('port') || process.env.PORT || 3000);
-  app.set("host", config.get('hostname') || process.env.IP);
+  app.set("port", process.env.PORT || config.get('port') || 3000);
+  app.set("host", process.env.IP || config.get('hostname'));
   app.use(express.logger("dev"));
   if(config.get('compression:enabled')){
     app.use(express.compress());
