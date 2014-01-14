@@ -4,4 +4,4 @@ Routes:
 
 * http://espnffl.herokuapp.com/endpoints
 
-You will need to ask the app owner for an api key.
+You will need to ask the app owner for an api key
