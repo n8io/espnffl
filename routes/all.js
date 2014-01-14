@@ -44,7 +44,6 @@ module.exports = function(app, options){
       return res.status('403').json({ 'message' : 'Unauthorized for this resource.' });
     }
 
-
     return next();
   });
 };
