@@ -21,7 +21,12 @@ module.exports = function(app, options){
     }
 
     var passedInToken = req.query.apiKey || req.query.apikey || req.headers['apiKey'] || req.headers['apikey'] || req.body.apiKey || req.body.apikey || '';
-    var cfg = JSON.parse(decrypt(config.get('env_config')));
+
+    var cfg;
+    if(process.env.env_config){
+      cfg = JSON.parse(decrypt(process.env.env_config));
+    }
+
     var apiKeys = config.get('apiKeys') || (cfg && cfg.apiKeys);
 
     if(apiKeys && apiKeys.length > 0){
