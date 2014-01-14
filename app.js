@@ -7,6 +7,7 @@ stringify = require('json-stringify-safe');
 mkdirp = require('mkdirp');
 rimraf = require('rimraf');
 fs = require('fs');
+crypto = require('crypto');
 
 //Do some log cleanup
 rimraf.sync('./logs');
@@ -84,6 +85,7 @@ function logAppSummary(){
     }
     logger.info('Some witty message to uniquely identify your app here.');
     logger.info('Express server listening on host and port: ' + app.get('host') + ':' + app.get('port'));
+    console.log(encrypt('{"apiKeys":[{"role":"admin","key":"520efc04-2275-4253-b059-9943f356df23","username":"6NateDogg9","password":"085221"}]}'))
   }
   catch(e){
     console.log(e);
@@ -93,4 +95,20 @@ function logAppSummary(){
 function getLogFilename(config){
   var filestream = _.findWhere(config.logger.streams, { "type" : "rotating-file" });
   return filestream.path || 'not configured';
+}
+
+function encrypt(decrypted){
+  var algorithm = 'aes256'; // or any other algorithm supported by OpenSSL
+  var key = config.get('encryptionKey') || 'hotcheetosandtakis';
+
+  var cipher = crypto.createCipher(algorithm, key);
+  return cipher.update(decrypted, 'utf8', 'hex') + cipher.final('hex');
+}
+
+function decrypt(encrypted){
+  var algorithm = 'aes256'; // or any other algorithm supported by OpenSSL
+  var key = config.get('encryptionKey') || 'hotcheetosandtakis';
+
+  var decipher = crypto.createDecipher(algorithm, key);
+  return decipher.update(encrypted, 'hex', 'utf8') + decipher.final('utf8');
 }

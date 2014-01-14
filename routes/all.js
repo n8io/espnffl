@@ -21,19 +21,40 @@ module.exports = function(app, options){
     }
 
     var passedInToken = req.query.apiKey || req.query.apikey || req.headers['apiKey'] || req.headers['apikey'] || req.body.apiKey || req.body.apikey || '';
-    var apiKeys = config.get('apiKeys');
+    var apiKeys = config.get('apiKeys') || (config.get('env_config') ? decrypt(JSON.parse(config.get('env_config'))) : null);
 
-    var matchingToken = _(apiKeys).find(function(at){
-      return at.key.toLowerCase() === passedInToken.toLowerCase();
-    });
+    if(apiKeys && apiKeys.length > 0){
+      var matchingToken = _(apiKeys).find(function(at){
+        return at.key.toLowerCase() === passedInToken.toLowerCase();
+      });
 
-    if(!matchingToken){
-      res.status('403').json({ 'message' : 'Unauthorized for this resource.' });
+      if(!matchingToken){
+        return res.status('403').json({ 'message' : 'Unauthorized for this resource.' });
+      }
+
+      options.access = matchingToken;
     }
-
-    options.access = matchingToken;
+    else{
+      return res.status('403').json({ 'message' : 'Unauthorized for this resource.' });
+    }
 
 
     return next();
   });
 };
+
+function encrypt(decrypted){
+  var algorithm = 'aes256'; // or any other algorithm supported by OpenSSL
+  var key = config.get('encryptionKey') || 'hotcheetosandtakis';
+
+  var cipher = crypto.createCipher(algorithm, key);
+  return cipher.update(decrypted, 'utf8', 'hex') + cipher.final('hex');
+}
+
+function decrypt(encrypted){
+  var algorithm = 'aes256'; // or any other algorithm supported by OpenSSL
+  var key = config.get('encryptionKey') || 'hotcheetosandtakis';
+
+  var decipher = crypto.createDecipher(algorithm, key);
+  return decipher.update(encrypted, 'hex', 'utf8') + decipher.final('utf8');
+}
