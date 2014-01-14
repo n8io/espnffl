@@ -16,8 +16,15 @@ module.exports = function(app, options){
         "/:leagueId/:seasonId/settings",
         "/:leagueId/:seasonId/:teamId/schedule",
         "/:leagueId/:seasonId/:weekId/scores",
-        "/:leagueId/:seasonId/:weekId/:teamId/matchup"
+        "/:leagueId/:seasonId/:weekId/:teamId/matchup",
+        "/heartbeat"
       ]);
+    }
+
+    if(parsedUrl.pathname.toLowerCase() === '/heartbeat'){
+      return res.json(200, {
+        'status' : 'OK'
+      });
     }
 
     var passedInToken = req.query.apiKey || req.query.apikey || req.headers['apiKey'] || req.headers['apikey'] || req.body.apiKey || req.body.apikey || '';
