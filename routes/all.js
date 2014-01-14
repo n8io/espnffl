@@ -6,7 +6,7 @@ module.exports = function(app, options){
 
     var parsedUrl = url.parse(req.url);
 
-    if(parsedUrl.pathname.toLowerCase() === '/endpoints'){
+    if(parsedUrl.pathname === '/' || parsedUrl.pathname.toLowerCase() === '/endpoints'){
       return res.json(200, [
         '/:leagueId/:seasonId',
         '/:leagueId/:seasonId/members',
