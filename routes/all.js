@@ -21,7 +21,8 @@ module.exports = function(app, options){
     }
 
     var passedInToken = req.query.apiKey || req.query.apikey || req.headers['apiKey'] || req.headers['apikey'] || req.body.apiKey || req.body.apikey || '';
-    var apiKeys = config.get('apiKeys') || (config.get('env_config') ? decrypt(JSON.parse(config.get('env_config'))) : null);
+    var cfg = JSON.parse(decrypt(config.get('env_config')));
+    var apiKeys = config.get('apiKeys') || (cfg && cfg.apiKeys);
 
     if(apiKeys && apiKeys.length > 0){
       var matchingToken = _(apiKeys).find(function(at){

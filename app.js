@@ -85,7 +85,6 @@ function logAppSummary(){
     }
     logger.info('Some witty message to uniquely identify your app here.');
     logger.info('Express server listening on host and port: ' + app.get('host') + ':' + app.get('port'));
-    console.log(encrypt('{"apiKeys":[{"role":"admin","key":"520efc04-2275-4253-b059-9943f356df23","username":"6NateDogg9","password":"085221"}]}'))
   }
   catch(e){
     console.log(e);
