@@ -8,6 +8,8 @@ module.exports = function(app, options){
 
     if(parsedUrl.pathname === '/' || parsedUrl.pathname.toLowerCase() === '/endpoints'){
       return res.json(200, [
+        '/:leagueId/trophies',
+        '/:leagueId/trophies/history/:trophyId',
         '/:leagueId/:seasonId',
         '/:leagueId/:seasonId/members',
         '/:leagueId/:seasonId/draftrecap',

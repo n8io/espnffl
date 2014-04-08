@@ -29,6 +29,7 @@ public/js/script.min.js
 **/*.staging.json
 **/*.production.json
 **/*.uat.json
+**/*.ci.json
 
 #designer garbage
 .DS_Store
