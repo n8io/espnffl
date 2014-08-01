@@ -24,8 +24,8 @@ apiRouteController.Members = function (req, res) {
     return res.status(400).json({ 'message' : 'A valid leagueId and seasonId must be provided.' });
   }
 
-  logicalSeasonId = getLogicalSeasonId();
-  isSeasonConcluded = isSeasonConcluded(logicalSeasonId, seasonId);
+  logicalSeasonId = moment().get('month') < 8 ? moment().get('year') - 1 : moment().get('year');
+  isSeasonConcluded = logicalSeasonId > seasonId || (seasonId + 1 === moment().get('year') && moment().get('month') > 1);
 
   request = require('request');
   request = request.defaults({jar:true}); //Create a new cookie jar for maintaining auth
@@ -54,16 +54,14 @@ apiRouteController.Info = function (req, res) {
   leagueId = parseInt(leagueId, 0);
   seasonId = parseInt(seasonId, 0);
 
-  console.log('seasonId',seasonId);
-
   var tempSeasonId = seasonId == -1 ? 9999 : seasonId;
 
   if(leagueId <= 0 || (leagueId > 0 && tempSeasonId <= 0)){
     return res.status(400).json({ 'message' : 'A valid leagueId must be provided.' });
   }
 
-  logicalSeasonId = getLogicalSeasonId();
-  isSeasonConcluded = isSeasonConcluded(logicalSeasonId, tempSeasonId);
+  logicalSeasonId = moment().get('month') < 8 ? moment().get('year') - 1 : moment().get('year');
+  isSeasonConcluded = logicalSeasonId > tempSeasonId || (seasonId + 1 === moment().get('year') && moment().get('month') > 1);
 
   request = require('request');
   request = request.defaults({jar:true}); //Create a new cookie jar for maintaining auth
@@ -96,8 +94,8 @@ apiRouteController.TransactionCounts = function (req, res) {
     return res.status(400).json({ 'message' : 'A valid leagueId and seasonId must be provided.' });
   }
 
-  logicalSeasonId = getLogicalSeasonId();
-  isSeasonConcluded = isSeasonConcluded(logicalSeasonId, seasonId);
+  logicalSeasonId = moment().get('month') < 8 ? moment().get('year') - 1 : moment().get('year');
+  isSeasonConcluded = logicalSeasonId > seasonId || (seasonId + 1 === moment().get('year') && moment().get('month') > 1);
 
   request = require('request');
   request = request.defaults({jar:true}); //Create a new cookie jar for maintaining auth
@@ -128,8 +126,8 @@ apiRouteController.FinalStandings = function (req, res) {
     return res.status(400).json({ 'message' : 'A valid leagueId and seasonId must be provided.' });
   }
 
-  logicalSeasonId = getLogicalSeasonId();
-  isSeasonConcluded = isSeasonConcluded(logicalSeasonId, seasonId);
+  logicalSeasonId = moment().get('month') < 8 ? moment().get('year') - 1 : moment().get('year');
+  isSeasonConcluded = logicalSeasonId > seasonId || (seasonId + 1 === moment().get('year') && moment().get('month') > 1);
 
   request = require('request');
   request = request.defaults({jar:true}); //Create a new cookie jar for maintaining auth
@@ -160,8 +158,8 @@ apiRouteController.Settings = function (req, res) {
     return res.status(400).json({ 'message' : 'A valid leagueId and seasonId must be provided.' });
   }
 
-  logicalSeasonId = getLogicalSeasonId();
-  isSeasonConcluded = isSeasonConcluded(logicalSeasonId, seasonId);
+  logicalSeasonId = moment().get('month') < 8 ? moment().get('year') - 1 : moment().get('year');
+  isSeasonConcluded = logicalSeasonId > seasonId || (seasonId + 1 === moment().get('year') && moment().get('month') > 1);
 
   request = require('request');
   request = request.defaults({jar:true}); //Create a new cookie jar for maintaining auth
@@ -194,8 +192,8 @@ apiRouteController.WeekScores = function (req, res) {
     return res.status(400).json({ 'message' : 'A valid leagueId, seasonId, and weekId must be provided.' });
   }
 
-  logicalSeasonId = getLogicalSeasonId();
-  isSeasonConcluded = isSeasonConcluded(logicalSeasonId, seasonId);
+  logicalSeasonId = moment().get('month') < 8 ? moment().get('year') - 1 : moment().get('year');
+  isSeasonConcluded = logicalSeasonId > seasonId || (seasonId + 1 === moment().get('year') && moment().get('month') > 1);
 
   request = require('request');
   request = request.defaults({jar:true}); //Create a new cookie jar for maintaining auth
@@ -228,8 +226,8 @@ apiRouteController.TeamSchedule = function (req, res) {
     return res.status(400).json({ 'message' : 'A valid leagueId, seasonId, and teamId must be provided.' });
   }
 
-  logicalSeasonId = getLogicalSeasonId();
-  isSeasonConcluded = isSeasonConcluded(logicalSeasonId, seasonId);
+  logicalSeasonId = moment().get('month') < 8 ? moment().get('year') - 1 : moment().get('year');
+  isSeasonConcluded = logicalSeasonId > seasonId || (seasonId + 1 === moment().get('year') && moment().get('month') > 1);
 
   request = require('request');
   request = request.defaults({jar:true}); //Create a new cookie jar for maintaining auth
@@ -260,8 +258,8 @@ apiRouteController.DraftRecap = function (req, res) {
     return res.status(400).json({ 'message' : 'A valid leagueId and seasonId must be provided.' });
   }
 
-  logicalSeasonId = getLogicalSeasonId();
-  isSeasonConcluded = isSeasonConcluded(logicalSeasonId, seasonId);
+  logicalSeasonId = moment().get('month') < 8 ? moment().get('year') - 1 : moment().get('year');
+  isSeasonConcluded = logicalSeasonId > seasonId || (seasonId + 1 === moment().get('year') && moment().get('month') > 1);
 
   request = require('request');
   request = request.defaults({jar:true}); //Create a new cookie jar for maintaining auth
@@ -296,8 +294,8 @@ apiRouteController.Matchup = function (req, res) {
     return res.status(400).json({ 'message' : 'A valid leagueId/seasonId/weekId/teamId must be provided.' });
   }
 
-  logicalSeasonId = getLogicalSeasonId();
-  isSeasonConcluded = isSeasonConcluded(logicalSeasonId, seasonId);
+  logicalSeasonId = moment().get('month') < 8 ? moment().get('year') - 1 : moment().get('year');
+  isSeasonConcluded = logicalSeasonId > seasonId || (seasonId + 1 === moment().get('year') && moment().get('month') > 1);
 
   request = require('request');
   request = request.defaults({jar:true}); //Create a new cookie jar for maintaining auth
@@ -313,6 +311,80 @@ apiRouteController.Matchup = function (req, res) {
         return res.status(500).json({ 'message' : 'Failed to retrieve the given matchup.' });
       }
       return res.status(200).json(results.scrapeMatchup);
+    }
+  );
+};
+
+apiRouteController.Trophies = function (req, res) {
+  leagueId = req.params.leagueId || -1;
+  seasonId = req.params.seasonId || -1;
+  weekId = req.params.weekId || -1;
+  teamId = req.params.teamId || -1;
+
+  leagueId = parseInt(leagueId, 0);
+  seasonId = parseInt(seasonId, 0);
+  weekId = parseInt(weekId, 0);
+  teamId = parseInt(teamId, 0);
+
+  if(leagueId <= 0 ){
+    return res.status(400).json({ 'message' : 'A valid leagueId must be provided.' });
+  }
+
+  logicalSeasonId = moment().get('month') < 8 ? moment().get('year') - 1 : moment().get('year');
+  isSeasonConcluded = logicalSeasonId > seasonId || (seasonId + 1 === moment().get('year') && moment().get('month') > 1);
+
+  request = require('request');
+  request = request.defaults({jar:true}); //Create a new cookie jar for maintaining auth
+
+  async.series(
+    {
+      espnAuth: authenticateEspnCredentials,
+      scrapeTrophies: scrapeTrophies
+    },
+    // On Complete
+    function(err, results){
+      if(err){
+        return res.status(500).json({ 'message' : 'Failed to retrieve the trophies for give leagueId.' });
+      }
+      return res.status(200).json(results.scrapeTrophies);
+    }
+  );
+};
+
+apiRouteController.TrophyHistory = function (req, res) {
+  leagueId = req.params.leagueId || -1;
+  seasonId = req.params.seasonId || -1;
+  weekId = req.params.weekId || -1;
+  teamId = req.params.teamId || -1;
+  trophyId = req.params.trophyId || -1;
+
+  leagueId = parseInt(leagueId, 0);
+  seasonId = parseInt(seasonId, 0);
+  weekId = parseInt(weekId, 0);
+  teamId = parseInt(teamId, 0);
+  trophyId = parseInt(trophyId, 0);
+
+  if(leagueId <= 0 || trophyId <= 0){
+    return res.status(400).json({ 'message' : 'A valid leagueId/trophyId must be provided.' });
+  }
+
+  logicalSeasonId = moment().get('month') < 8 ? moment().get('year') - 1 : moment().get('year');
+  isSeasonConcluded = logicalSeasonId > seasonId || (seasonId + 1 === moment().get('year') && moment().get('month') > 1);
+
+  request = require('request');
+  request = request.defaults({jar:true}); //Create a new cookie jar for maintaining auth
+
+  async.series(
+    {
+      espnAuth: authenticateEspnCredentials,
+      scrapeTrophyHistory: scrapeTrophyHistory
+    },
+    // On Complete
+    function(err, results){
+      if(err){
+        return res.status(500).json({ 'message' : 'Failed to retrieve the trophies for give leagueId.' });
+      }
+      return res.status(200).json(results.scrapeTrophyHistory);
     }
   );
 };
@@ -1387,13 +1459,136 @@ var scrapeMatchup = function(callback){
   });
 };
 
-function isSeasonConcluded(logicalSeasonId, seasonId){
-  return logicalSeasonId > seasonId || (seasonId + 1 === moment().get('year') && moment().get('month') > 1);
-}
+var scrapeTrophies = function(callback){
+  var reqOpt = {
+    url: 'http://games.espn.go.com/ffl/trophylist?leagueId=' + leagueId
+  };
 
-function getLogicalSeasonId(){
-  return moment().get('month') < 8 ? moment().get('year') - 1 : moment().get('year')
-}
+  request.get(reqOpt, function(err, result, body){
+    if(err){
+      console.log('Failed to retrieve given league.'.red);
+      callback(err, null);
+      return;
+    }
+
+    $ = cheerio.load(body);
+
+    var trophyTable = $('.games-fullcol.games-fullcol-extramargin').find('table');
+    var trophyRows = [];
+
+    if(trophyTable.length === 2){
+      trophyTable = $(trophyTable).last();
+    }
+
+    if(trophyTable.length === 1){
+      trophyRows = $(trophyTable).find('tr');
+      trophyRows = _.chain(trophyRows).initial().rest(); // Removes first and last rows
+    }
+
+    if(!trophyRows || trophyRows.length === 0){
+      console.log('Failed to retrieve trophy rows.'.red);
+      callback(1, null);
+      return;
+    }
+
+    var timestamp = moment().utc().format();
+
+    var trophies = [];
+
+    _(trophyRows).each(function(tr){
+      _($(tr).find('td')).each(function(td){
+        var trophy = {image:{}};
+        var img = $(td).find('img');
+        trophy.image.url = img.attr('src');
+        trophy.image.height = 90;
+        trophy.image.width = 90;
+
+        var wrapper = $(td).children('div').eq(1);
+        trophy.label = $(wrapper).find('center b').text();
+        trophy.id = getTrophyIdFromUrl($(wrapper).find('center a').attr('href'));
+        // trophy.stars = parseInt($(info).children('div').children('span').children('img').attr('alt').split(' ')[0], 0);
+        $(wrapper).find('center').remove();
+        $(wrapper).find('br').remove();
+        $(wrapper).find('a').remove();
+        $(wrapper).find('.sidebar').remove();
+        trophy.description = $(wrapper).text();
+
+        // console.log(JSON.stringify(trophy, null, 2));
+
+        trophies.push(trophy);
+      });
+    });
+
+    var data = {
+      timestamp: timestamp,
+      league: {
+        id: leagueId
+      },
+      trophies: trophies
+    };
+
+    callback(null, data);
+    return;
+  });
+};
+
+var scrapeTrophyHistory = function(callback){
+  var reqOpt = {
+    url: 'http://games.espn.go.com/ffl/trophyhistory?leagueId=' + leagueId + '&trophyId=' + trophyId
+  };
+
+  request.get(reqOpt, function(err, result, body){
+    if(err){
+      console.log('Failed to retrieve given league.'.red);
+      callback(err, null);
+      return;
+    }
+
+    $ = cheerio.load(body);
+
+    var awards = $('.games-alert-mod.alert-mod2.games-grey-alert');
+
+    if(!awards || awards.length === 0){
+      console.log('Failed to retrieve trophy rows.'.red);
+      callback(1, null);
+      return;
+    }
+
+    var timestamp = moment().utc().format();
+
+    var trophies = [];
+
+    var monthShortNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+    _(awards).each(function(award){
+      var trophy = {};
+
+      trophy.awardedOn = moment($(award).children('b').text(), 'MMM DD, YYYY', 'en').utc().format();
+
+      var link = $(award).children('a');
+      trophy.awardedTo = {
+        teamId: getTeamIdFromUrl($(link).attr('href')),
+        name: $(link).children('b').text()
+      };
+
+      trophy.description = $(award).children('div').text();
+
+      trophies.push(trophy);
+    });
+
+    var data = {
+      timestamp: timestamp,
+      league: {
+        id: leagueId
+      },
+      trophies: trophies
+    };
+
+    callback(null, data);
+    return;
+  });
+};
+
 
 function getTeamIdFromUrl(urlStr){
   if(!urlStr) return -1;
@@ -1403,7 +1598,19 @@ function getTeamIdFromUrl(urlStr){
 
   var uri = url.parse(urlStr, true);
 
-  return parseInt(uri.query.teamId);
+  return parseInt(uri.query.teamId, 0);
+}
+
+function getTrophyIdFromUrl(urlStr){
+  // console.log(urlStr);
+  if(!urlStr) return -1;
+  if(!_.str.startsWith(urlStr, 'http')){
+    urlStr = 'http://www.google.com' + urlStr;
+  }
+
+  var uri = url.parse(urlStr, true);
+
+  return parseInt(uri.query.trophyId, 0);
 }
 
 function getFeeBreakDownFromStr(str){

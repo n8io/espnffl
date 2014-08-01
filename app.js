@@ -4,6 +4,15 @@ _.str = require('underscore.string');
 moment = require('moment');
 config = require('nconf').env([ 'NODE_ENV' ]);
 stringify = require('json-stringify-safe');
+mkdirp = require('mkdirp');
+rimraf = require('rimraf');
+fs = require('fs');
+crypto = require('crypto');
+
+//Do some log cleanup
+rimraf.sync('./logs');
+mkdirp.sync('./logs');
+fs.writeFileSync('./logs/log.log');
 
 var express = require("express"),
   http = require("http"),
@@ -33,8 +42,8 @@ var cookieExpiration = 1 * 60 * 60 * 1000; // 1 hour // sliding in ms
 
 app.configure(function() {
   app.set("name", appName);
-  app.set("port", config.get('port') || process.env.PORT || 3000);
-  app.set("host", config.get('hostname') || process.env.IP);
+  app.set("port", process.env.PORT || config.get('port') || 3000);
+  app.set("host", process.env.IP || config.get('hostname'));
   app.use(express.logger("dev"));
   if(config.get('compression:enabled')){
     app.use(express.compress());
@@ -85,4 +94,20 @@ function logAppSummary(){
 function getLogFilename(config){
   var filestream = _.findWhere(config.logger.streams, { "type" : "rotating-file" });
   return filestream.path || 'not configured';
+}
+
+function encrypt(decrypted){
+  var algorithm = 'aes256'; // or any other algorithm supported by OpenSSL
+  var key = config.get('encryptionKey') || 'hotcheetosandtakis';
+
+  var cipher = crypto.createCipher(algorithm, key);
+  return cipher.update(decrypted, 'utf8', 'hex') + cipher.final('hex');
+}
+
+function decrypt(encrypted){
+  var algorithm = 'aes256'; // or any other algorithm supported by OpenSSL
+  var key = config.get('encryptionKey') || 'hotcheetosandtakis';
+
+  var decipher = crypto.createDecipher(algorithm, key);
+  return decipher.update(encrypted, 'hex', 'utf8') + decipher.final('utf8');
 }
