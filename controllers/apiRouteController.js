@@ -1212,7 +1212,7 @@ var scrapeTeamSchedule = function(callback){
       var result = getGameResults(_.str.trim($(row).find('td').eq(isSeasonConcluded ? 2 : 1).text()));
       var isHomeGame = _.str.trim($(row).find('td').eq(isSeasonConcluded ? 3 : 2).text()).toLowerCase() === '';
       var opponentLink = $(row).find('td').eq(isSeasonConcluded ? 4 : 3).find('a');
-      var ownerName = _.str.titleize(_.str.trim($(opponentLink).attr('title').split('(')[1], [')',' ']));
+      var ownerName = _.str.titleize(_.str.trim(($(opponentLink).attr('title')+'').split('(')[1], [')',' ']));
 
       var opponent = {
         id: getTeamIdFromUrl($(opponentLink).attr('href')),
