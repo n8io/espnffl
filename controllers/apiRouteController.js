@@ -24,8 +24,8 @@ apiRouteController.Members = function (req, res) {
     return res.status(400).json({ 'message' : 'A valid leagueId and seasonId must be provided.' });
   }
 
-  logicalSeasonId = moment().get('month') < 8 ? moment().get('year') - 1 : moment().get('year');
-  isSeasonConcluded = logicalSeasonId > seasonId || (seasonId + 1 === moment().get('year') && moment().get('month') > 1);
+  logicalSeasonId = getLogicalSeasonId();
+  isSeasonConcluded = isSeasonConcluded(logicalSeasonId, seasonId);
 
   request = require('request');
   request = request.defaults({jar:true}); //Create a new cookie jar for maintaining auth
@@ -62,8 +62,8 @@ apiRouteController.Info = function (req, res) {
     return res.status(400).json({ 'message' : 'A valid leagueId must be provided.' });
   }
 
-  logicalSeasonId = moment().get('month') < 8 ? moment().get('year') - 1 : moment().get('year');
-  isSeasonConcluded = logicalSeasonId > tempSeasonId || (seasonId + 1 === moment().get('year') && moment().get('month') > 1);
+  logicalSeasonId = getLogicalSeasonId();
+  isSeasonConcluded = isSeasonConcluded(logicalSeasonId, tempSeasonId);
 
   request = require('request');
   request = request.defaults({jar:true}); //Create a new cookie jar for maintaining auth
@@ -96,8 +96,8 @@ apiRouteController.TransactionCounts = function (req, res) {
     return res.status(400).json({ 'message' : 'A valid leagueId and seasonId must be provided.' });
   }
 
-  logicalSeasonId = moment().get('month') < 8 ? moment().get('year') - 1 : moment().get('year');
-  isSeasonConcluded = logicalSeasonId > seasonId || (seasonId + 1 === moment().get('year') && moment().get('month') > 1);
+  logicalSeasonId = getLogicalSeasonId();
+  isSeasonConcluded = isSeasonConcluded(logicalSeasonId, seasonId);
 
   request = require('request');
   request = request.defaults({jar:true}); //Create a new cookie jar for maintaining auth
@@ -128,8 +128,8 @@ apiRouteController.FinalStandings = function (req, res) {
     return res.status(400).json({ 'message' : 'A valid leagueId and seasonId must be provided.' });
   }
 
-  logicalSeasonId = moment().get('month') < 8 ? moment().get('year') - 1 : moment().get('year');
-  isSeasonConcluded = logicalSeasonId > seasonId || (seasonId + 1 === moment().get('year') && moment().get('month') > 1);
+  logicalSeasonId = getLogicalSeasonId();
+  isSeasonConcluded = isSeasonConcluded(logicalSeasonId, seasonId);
 
   request = require('request');
   request = request.defaults({jar:true}); //Create a new cookie jar for maintaining auth
@@ -160,8 +160,8 @@ apiRouteController.Settings = function (req, res) {
     return res.status(400).json({ 'message' : 'A valid leagueId and seasonId must be provided.' });
   }
 
-  logicalSeasonId = moment().get('month') < 8 ? moment().get('year') - 1 : moment().get('year');
-  isSeasonConcluded = logicalSeasonId > seasonId || (seasonId + 1 === moment().get('year') && moment().get('month') > 1);
+  logicalSeasonId = getLogicalSeasonId();
+  isSeasonConcluded = isSeasonConcluded(logicalSeasonId, seasonId);
 
   request = require('request');
   request = request.defaults({jar:true}); //Create a new cookie jar for maintaining auth
@@ -194,8 +194,8 @@ apiRouteController.WeekScores = function (req, res) {
     return res.status(400).json({ 'message' : 'A valid leagueId, seasonId, and weekId must be provided.' });
   }
 
-  logicalSeasonId = moment().get('month') < 8 ? moment().get('year') - 1 : moment().get('year');
-  isSeasonConcluded = logicalSeasonId > seasonId || (seasonId + 1 === moment().get('year') && moment().get('month') > 1);
+  logicalSeasonId = getLogicalSeasonId();
+  isSeasonConcluded = isSeasonConcluded(logicalSeasonId, seasonId);
 
   request = require('request');
   request = request.defaults({jar:true}); //Create a new cookie jar for maintaining auth
@@ -228,8 +228,8 @@ apiRouteController.TeamSchedule = function (req, res) {
     return res.status(400).json({ 'message' : 'A valid leagueId, seasonId, and teamId must be provided.' });
   }
 
-  logicalSeasonId = moment().get('month') < 8 ? moment().get('year') - 1 : moment().get('year');
-  isSeasonConcluded = logicalSeasonId > seasonId || (seasonId + 1 === moment().get('year') && moment().get('month') > 1);
+  logicalSeasonId = getLogicalSeasonId();
+  isSeasonConcluded = isSeasonConcluded(logicalSeasonId, seasonId);
 
   request = require('request');
   request = request.defaults({jar:true}); //Create a new cookie jar for maintaining auth
@@ -260,8 +260,8 @@ apiRouteController.DraftRecap = function (req, res) {
     return res.status(400).json({ 'message' : 'A valid leagueId and seasonId must be provided.' });
   }
 
-  logicalSeasonId = moment().get('month') < 8 ? moment().get('year') - 1 : moment().get('year');
-  isSeasonConcluded = logicalSeasonId > seasonId || (seasonId + 1 === moment().get('year') && moment().get('month') > 1);
+  logicalSeasonId = getLogicalSeasonId();
+  isSeasonConcluded = isSeasonConcluded(logicalSeasonId, seasonId);
 
   request = require('request');
   request = request.defaults({jar:true}); //Create a new cookie jar for maintaining auth
@@ -296,8 +296,8 @@ apiRouteController.Matchup = function (req, res) {
     return res.status(400).json({ 'message' : 'A valid leagueId/seasonId/weekId/teamId must be provided.' });
   }
 
-  logicalSeasonId = moment().get('month') < 8 ? moment().get('year') - 1 : moment().get('year');
-  isSeasonConcluded = logicalSeasonId > seasonId || (seasonId + 1 === moment().get('year') && moment().get('month') > 1);
+  logicalSeasonId = getLogicalSeasonId();
+  isSeasonConcluded = isSeasonConcluded(logicalSeasonId, seasonId);
 
   request = require('request');
   request = request.defaults({jar:true}); //Create a new cookie jar for maintaining auth
@@ -1386,6 +1386,14 @@ var scrapeMatchup = function(callback){
     return;
   });
 };
+
+function isSeasonConcluded(logicalSeasonId, seasonId){
+  return logicalSeasonId > seasonId || (seasonId + 1 === moment().get('year') && moment().get('month') > 1);
+}
+
+function getLogicalSeasonId(){
+  return moment().get('month') < 8 ? moment().get('year') - 1 : moment().get('year')
+}
 
 function getTeamIdFromUrl(urlStr){
   if(!urlStr) return -1;
