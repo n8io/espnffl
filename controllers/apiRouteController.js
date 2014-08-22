@@ -1306,7 +1306,7 @@ var scrapeTeamRoster = function(callback){
       var position = _.str.trim(txt.split(',')[1].split(' ')[2]);
 
       return {
-        id: playerId,
+        id: parseInt(playerId, 0),
         name: playerName,
         team: team,
         position: position
