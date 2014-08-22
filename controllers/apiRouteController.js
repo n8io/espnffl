@@ -490,10 +490,10 @@ var scrapeMembers = function(callback){
       var espnUserId = _.str.trim($(html).find('td').eq(4).find('a').attr('href').toLowerCase().split('userid=')[1].split('&seasonid')[0]);
 
       teams.push({
-        id: parseInt(teamId,0),
         espnUserId: parseInt(espnUserId, 0),
         division: ownerDivision,
         team: {
+          id: parseInt(teamId,0),
           name: teamName,
           abbr: teamNameAbbr
         },
@@ -1321,6 +1321,12 @@ var scrapeTeamRoster = function(callback){
       bench.push(parsePlayerInfo(row));
     });
 
+    var ownerName = _.str.trim($('.per-info a').first().text());
+    var ownerFirst = ownerName.split(' ')[0];
+    var ownerLast = ownerName.split(' ')[1];
+    var teamName = _.str.trim($('.team-name').text().replace($('.team-name em').text(), ''));
+    var teamAbbr = _.str.trim($('.team-name em').text(), [' ', '(', ')']);
+
     var data = {
       timestamp: timestamp,
       league: {
@@ -1331,7 +1337,13 @@ var scrapeTeamRoster = function(callback){
         isComplete: isSeasonConcluded
       },
       team: {
-        id: teamId
+        id: teamId,
+        abbr: teamAbbr,
+        name: teamName
+      },
+      owner: {
+        firstName: ownerFirst,
+        lastName: ownerLast
       },
       roster: {
         starters: starters.reverse(),
