@@ -11,7 +11,7 @@ module.exports = function(app, options){
     { "method": "get",  "path" : "/heartbeat",                                      "controller" : "pageRouteController", "action" : "Heartbeat" },
     { "method": "get",  "path" : "/:leagueId",                                      "controller" : "apiRouteController",  "action" : "Info" },
     { "method": "get",  "path" : "/:leagueId/trophies",                             "controller" : "apiRouteController",  "action" : "Trophies" },
-    { "method": "get",  "path" : "/:leagueId/trophy/history/:trophyId",             "controller" : "apiRouteController",  "action" : "TrophyHistory" },
+    { "method": "get",  "path" : "/:leagueId/trophies/history/:trophyId",           "controller" : "apiRouteController",  "action" : "TrophyHistory" },
     { "method": "get",  "path" : "/:leagueId/:seasonId",                            "controller" : "apiRouteController",  "action" : "Info" },
     { "method": "get",  "path" : "/:leagueId/:seasonId/members",                    "controller" : "apiRouteController",  "action" : "Members" },
     { "method": "get",  "path" : "/:leagueId/:seasonId/draftrecap",                 "controller" : "apiRouteController",  "action" : "DraftRecap" },
