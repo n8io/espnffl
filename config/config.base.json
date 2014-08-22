@@ -9,14 +9,6 @@
     "name": "default",
     "src": true,
     "enableConsole": true,
-    "streams": [
-      {
-        "level": "debug",
-        "type": "rotating-file",
-        "path": "logs/log.log",
-        "period": "1d",
-        "count": 7
-      }
-    ]
+    "streams": []
   }
 }

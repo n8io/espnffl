@@ -9,11 +9,6 @@ rimraf = require('rimraf');
 fs = require('fs');
 crypto = require('crypto');
 
-//Do some log cleanup
-rimraf.sync('./logs');
-mkdirp.sync('./logs');
-fs.writeFileSync('./logs/log.log');
-
 var express = require("express"),
   http = require("http"),
   path = require("path"),
@@ -28,6 +23,13 @@ var express = require("express"),
 
 // Load and validate config(s)
 configurationLoader.load();
+
+if(config.get('logger.streams') && config.get('logger.streams').length){
+  //Do some log cleanup
+  rimraf.sync('./logs');
+  mkdirp.sync('./logs');
+  fs.writeFileSync('./logs/log.log');
+}
 
 // Initialize logger
 logger = require('./controllers/logger').getLogger(config.get('logger'));
@@ -92,7 +94,10 @@ function logAppSummary(){
 }
 
 function getLogFilename(config){
-  var filestream = _.findWhere(config.logger.streams, { "type" : "rotating-file" });
+  var filestream = _.findWhere(config.logger.streams || [], { "type" : "rotating-file" });
+  if(!filestream){
+    return 'not configured';
+  }
   return filestream.path || 'not configured';
 }
 

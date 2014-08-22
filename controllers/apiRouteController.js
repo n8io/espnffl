@@ -1,4 +1,4 @@
-var request = null;
+var request = require('request').defaults({jar:true}); //Create a new cookie jar for maintaining auth
 var _ = require('underscore'),
   cheerio = require('cheerio'),
   async = require('async'),
@@ -6,6 +6,8 @@ var _ = require('underscore'),
   moment = require('moment-timezone'),
   url = require('url'),
   fs = require('fs');
+
+var lastAuthDate = moment().add('week', -1); //Default to past
 
 var apiRouteController = function(){};
 
@@ -27,9 +29,6 @@ apiRouteController.Members = function (req, res) {
   logicalSeasonId = moment().get('month') < 8 ? moment().get('year') - 1 : moment().get('year');
   isSeasonConcluded = logicalSeasonId > seasonId || (seasonId + 1 === moment().get('year') && moment().get('month') > 1);
 
-  request = require('request');
-  request = request.defaults({jar:true}); //Create a new cookie jar for maintaining auth
-
   async.series(
     {
       espnAuth: authenticateEspnCredentials,
@@ -40,7 +39,7 @@ apiRouteController.Members = function (req, res) {
       if(err){
         return res.status(500).json({ 'message' : 'Failed to retrieve league members.' });
       }
-      return res.status(200).json(results.scrapeMembers);
+      return sendBackValidResponse(res, results.scrapeMembers);
     }
   );
 
@@ -63,9 +62,6 @@ apiRouteController.Info = function (req, res) {
   logicalSeasonId = moment().get('month') < 8 ? moment().get('year') - 1 : moment().get('year');
   isSeasonConcluded = logicalSeasonId > tempSeasonId || (seasonId + 1 === moment().get('year') && moment().get('month') > 1);
 
-  request = require('request');
-  request = request.defaults({jar:true}); //Create a new cookie jar for maintaining auth
-
   async.series(
     {
       espnAuth: authenticateEspnCredentials,
@@ -76,7 +72,7 @@ apiRouteController.Info = function (req, res) {
       if(err){
         return res.status(500).json({ 'message' : 'Failed to retrieve league info.' });
       }
-      return res.status(200).json(results.scrapeLeagueInfo);
+      return sendBackValidResponse(res, results.scrapeLeagueInfo);
     }
   );
 
@@ -97,9 +93,6 @@ apiRouteController.TransactionCounts = function (req, res) {
   logicalSeasonId = moment().get('month') < 8 ? moment().get('year') - 1 : moment().get('year');
   isSeasonConcluded = logicalSeasonId > seasonId || (seasonId + 1 === moment().get('year') && moment().get('month') > 1);
 
-  request = require('request');
-  request = request.defaults({jar:true}); //Create a new cookie jar for maintaining auth
-
   async.series(
     {
       espnAuth: authenticateEspnCredentials,
@@ -110,7 +103,7 @@ apiRouteController.TransactionCounts = function (req, res) {
       if(err){
         return res.status(500).json({ 'message' : 'Failed to retrieve transaction counts.' });
       }
-      return res.status(200).json(results.scrapeTransactionCounter);
+      return sendBackValidResponse(res, results.scrapeTransactionCounter);
     }
   );
 };
@@ -129,9 +122,6 @@ apiRouteController.FinalStandings = function (req, res) {
   logicalSeasonId = moment().get('month') < 8 ? moment().get('year') - 1 : moment().get('year');
   isSeasonConcluded = logicalSeasonId > seasonId || (seasonId + 1 === moment().get('year') && moment().get('month') > 1);
 
-  request = require('request');
-  request = request.defaults({jar:true}); //Create a new cookie jar for maintaining auth
-
   async.series(
     {
       espnAuth: authenticateEspnCredentials,
@@ -142,7 +132,7 @@ apiRouteController.FinalStandings = function (req, res) {
       if(err){
         return res.status(500).json({ 'message' : 'Failed to retrieve final standings.' });
       }
-      return res.status(200).json(results.scrapeFinalStandings);
+      return sendBackValidResponse(res, results.scrapeFinalStandings);
     }
   );
 };
@@ -161,9 +151,6 @@ apiRouteController.Settings = function (req, res) {
   logicalSeasonId = moment().get('month') < 8 ? moment().get('year') - 1 : moment().get('year');
   isSeasonConcluded = logicalSeasonId > seasonId || (seasonId + 1 === moment().get('year') && moment().get('month') > 1);
 
-  request = require('request');
-  request = request.defaults({jar:true}); //Create a new cookie jar for maintaining auth
-
   async.series(
     {
       espnAuth: authenticateEspnCredentials,
@@ -174,7 +161,7 @@ apiRouteController.Settings = function (req, res) {
       if(err){
         return res.status(500).json({ 'message' : 'Failed to retrieve league settings.' });
       }
-      return res.status(200).json(results.scrapeLeagueSettings);
+      return sendBackValidResponse(res, results.scrapeLeagueSettings);
     }
   );
 };
@@ -195,9 +182,6 @@ apiRouteController.WeekScores = function (req, res) {
   logicalSeasonId = moment().get('month') < 8 ? moment().get('year') - 1 : moment().get('year');
   isSeasonConcluded = logicalSeasonId > seasonId || (seasonId + 1 === moment().get('year') && moment().get('month') > 1);
 
-  request = require('request');
-  request = request.defaults({jar:true}); //Create a new cookie jar for maintaining auth
-
   async.series(
     {
       espnAuth: authenticateEspnCredentials,
@@ -208,7 +192,7 @@ apiRouteController.WeekScores = function (req, res) {
       if(err){
         return res.status(500).json({ 'message' : 'Failed to retrieve the given weeks scores.' });
       }
-      return res.status(200).json(results.scrapeWeekScores);
+      return sendBackValidResponse(res, results.scrapeWeekScores);
     }
   );
 };
@@ -229,9 +213,6 @@ apiRouteController.TeamSchedule = function (req, res) {
   logicalSeasonId = moment().get('month') < 8 ? moment().get('year') - 1 : moment().get('year');
   isSeasonConcluded = logicalSeasonId > seasonId || (seasonId + 1 === moment().get('year') && moment().get('month') > 1);
 
-  request = require('request');
-  request = request.defaults({jar:true}); //Create a new cookie jar for maintaining auth
-
   async.series(
     {
       espnAuth: authenticateEspnCredentials,
@@ -242,7 +223,7 @@ apiRouteController.TeamSchedule = function (req, res) {
       if(err){
         return res.status(500).json({ 'message' : 'Failed to retrieve the given weeks scores.' });
       }
-      return res.status(200).json(results.scrapeTeamSchedule);
+      return sendBackValidResponse(res, results.scrapeTeamSchedule);
     }
   );
 };
@@ -261,9 +242,6 @@ apiRouteController.DraftRecap = function (req, res) {
   logicalSeasonId = moment().get('month') < 8 ? moment().get('year') - 1 : moment().get('year');
   isSeasonConcluded = logicalSeasonId > seasonId || (seasonId + 1 === moment().get('year') && moment().get('month') > 1);
 
-  request = require('request');
-  request = request.defaults({jar:true}); //Create a new cookie jar for maintaining auth
-
   async.series(
     {
       espnAuth: authenticateEspnCredentials,
@@ -274,7 +252,7 @@ apiRouteController.DraftRecap = function (req, res) {
       if(err){
         return res.status(500).json({ 'message' : 'Failed to retrieve the given weeks scores.' });
       }
-      return res.status(200).json(results.scrapeDraftRecap);
+      return sendBackValidResponse(res, results.scrapeDraftRecap);
     }
   );
 };
@@ -297,9 +275,6 @@ apiRouteController.Matchup = function (req, res) {
   logicalSeasonId = moment().get('month') < 8 ? moment().get('year') - 1 : moment().get('year');
   isSeasonConcluded = logicalSeasonId > seasonId || (seasonId + 1 === moment().get('year') && moment().get('month') > 1);
 
-  request = require('request');
-  request = request.defaults({jar:true}); //Create a new cookie jar for maintaining auth
-
   async.series(
     {
       espnAuth: authenticateEspnCredentials,
@@ -310,7 +285,7 @@ apiRouteController.Matchup = function (req, res) {
       if(err){
         return res.status(500).json({ 'message' : 'Failed to retrieve the given matchup.' });
       }
-      return res.status(200).json(results.scrapeMatchup);
+      return sendBackValidResponse(res, results.scrapeMatchup);
     }
   );
 };
@@ -333,9 +308,6 @@ apiRouteController.Trophies = function (req, res) {
   logicalSeasonId = moment().get('month') < 8 ? moment().get('year') - 1 : moment().get('year');
   isSeasonConcluded = logicalSeasonId > seasonId || (seasonId + 1 === moment().get('year') && moment().get('month') > 1);
 
-  request = require('request');
-  request = request.defaults({jar:true}); //Create a new cookie jar for maintaining auth
-
   async.series(
     {
       espnAuth: authenticateEspnCredentials,
@@ -346,7 +318,7 @@ apiRouteController.Trophies = function (req, res) {
       if(err){
         return res.status(500).json({ 'message' : 'Failed to retrieve the trophies for give leagueId.' });
       }
-      return res.status(200).json(results.scrapeTrophies);
+      return sendBackValidResponse(res, results.scrapeTrophies);
     }
   );
 };
@@ -371,9 +343,6 @@ apiRouteController.TrophyHistory = function (req, res) {
   logicalSeasonId = moment().get('month') < 8 ? moment().get('year') - 1 : moment().get('year');
   isSeasonConcluded = logicalSeasonId > seasonId || (seasonId + 1 === moment().get('year') && moment().get('month') > 1);
 
-  request = require('request');
-  request = request.defaults({jar:true}); //Create a new cookie jar for maintaining auth
-
   async.series(
     {
       espnAuth: authenticateEspnCredentials,
@@ -384,12 +353,19 @@ apiRouteController.TrophyHistory = function (req, res) {
       if(err){
         return res.status(500).json({ 'message' : 'Failed to retrieve the trophies for give leagueId.' });
       }
-      return res.status(200).json(results.scrapeTrophyHistory);
+      return sendBackValidResponse(res, results.scrapeTrophyHistory);
     }
   );
 };
 
 var authenticateEspnCredentials = function(callback){
+  var staleAuthTimeInMs = 1 * 60 * 60 * 1000;
+  if(moment().diff(lastAuthDate) <= staleAuthTimeInMs){
+    return callback(null, {login:true});
+  }
+
+  console.log('Authentication expired. Need to re-authenticate.'.yellow);
+
   // language=en&affiliateName=espn&appRedirect=http%3A%2F%2Fespn.go.com%2F&parentLocation=http%3A%2F%2Fespn.go.com%2F&registrationFormId=espn
   var authOptions = {
     username: options.access.username,
@@ -419,6 +395,7 @@ var authenticateEspnCredentials = function(callback){
       return;
     }
     console.log('Passed authentication.'.green);
+    lastAuthDate = moment();
     callback(null, body);
     return;
   });
@@ -1589,6 +1566,10 @@ var scrapeTrophyHistory = function(callback){
   });
 };
 
+var sendBackValidResponse = function(res, responeBody){
+  lastAuthDate = moment();
+  return res.json(responeBody);
+};
 
 function getTeamIdFromUrl(urlStr){
   if(!urlStr) return -1;
