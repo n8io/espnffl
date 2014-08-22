@@ -228,6 +228,37 @@ apiRouteController.TeamSchedule = function (req, res) {
   );
 };
 
+apiRouteController.TeamRoster = function (req, res) {
+  leagueId = req.params.leagueId || -1;
+  seasonId = req.params.seasonId || -1;
+  teamId = req.params.teamId || -1;
+
+  leagueId = parseInt(leagueId, 0);
+  seasonId = parseInt(seasonId, 0);
+  teamId = parseInt(teamId, 0);
+
+  if(leagueId <= 0 || seasonId <= 0 || teamId <= 0){
+    return res.status(400).json({ 'message' : 'A valid leagueId, seasonId, and teamId must be provided.' });
+  }
+
+  logicalSeasonId = moment().get('month') < 8 ? moment().get('year') - 1 : moment().get('year');
+  isSeasonConcluded = logicalSeasonId > seasonId || (seasonId + 1 === moment().get('year') && moment().get('month') > 1);
+
+  async.series(
+    {
+      espnAuth: authenticateEspnCredentials,
+      scrapeTeamRoster: scrapeTeamRoster
+    },
+    // On Complete
+    function(err, results){
+      if(err){
+        return res.status(500).json({ 'message' : 'Failed to retrieve the given weeks scores.' });
+      }
+      return sendBackValidResponse(res, results.scrapeTeamRoster);
+    }
+  );
+};
+
 apiRouteController.DraftRecap = function (req, res) {
   leagueId = req.params.leagueId || -1;
   seasonId = req.params.seasonId || -1;
@@ -456,8 +487,11 @@ var scrapeMembers = function(callback){
       var firstName = ownerName.split(' ')[0];
       var lastName = ownerName.split(' ')[1];
       var ownerDivision = _.str.trim($(html).find('td').eq(3).text());
+      var espnUserId = _.str.trim($(html).find('td').eq(4).find('a').attr('href').toLowerCase().split('userid=')[1].split('&seasonid')[0]);
+
       teams.push({
         id: parseInt(teamId,0),
+        espnUserId: parseInt(espnUserId, 0),
         division: ownerDivision,
         team: {
           name: teamName,
@@ -1228,6 +1262,81 @@ var scrapeTeamSchedule = function(callback){
         id: teamId
       },
       outcomes: outcomes
+    };
+
+    callback(null, data);
+    return;
+  });
+};
+
+var scrapeTeamRoster = function(callback){
+  var reqOpt = {
+    url: 'http://games.espn.go.com/ffl/clubhouse?leagueId=' + leagueId + '&seasonId=' + seasonId + '&teamId=' + teamId
+  };
+
+  request.get(reqOpt, function(err, result, body){
+    if(err){
+      console.log('Failed to retrieve given league, season, and team.'.red);
+      callback(err, null);
+      return;
+    }
+
+    $ = cheerio.load(body);
+
+    var benchHeaderRow = $('.playertableSectionHeaderFirst').eq(1).parent();
+
+    if(!benchHeaderRow){
+      console.log('Failed to retrieve team\'s schedule. League/season/team combination may not be valid.'.red);
+      callback(1, null);
+      return;
+    }
+
+    var benchRows = $(benchHeaderRow).nextAll().find('td.playertablePlayerName');
+    var starterRows = $(benchHeaderRow).prevAll().find('td.playertablePlayerName');
+
+    var timestamp = moment().utc().format();
+    var starters = [];
+    var bench = [];
+
+    function parsePlayerInfo(row){
+      var playerId = $(row).attr('id').split('_')[1];
+      var txt = $(row).text().replace(/\s+/g, " ");
+      var playerName = _.str.trim(txt.split(',')[0]);
+      var team = _.str.trim(txt.split(',')[1].split(' ')[1].split(' ')[0]).toUpperCase();
+      var position = _.str.trim(txt.split(',')[1].split(' ')[2]);
+
+      return {
+        id: playerId,
+        name: playerName,
+        team: team,
+        position: position
+      };
+    }
+
+    _(starterRows).each(function(row, index){
+      starters.push(parsePlayerInfo(row));
+    });
+
+    _(benchRows).each(function(row, index){
+      bench.push(parsePlayerInfo(row));
+    });
+
+    var data = {
+      timestamp: timestamp,
+      league: {
+        id: leagueId
+      },
+      season: {
+        id: seasonId,
+        isComplete: isSeasonConcluded
+      },
+      team: {
+        id: teamId
+      },
+      roster: {
+        starters: starters.reverse(),
+        bench: bench
+      }
     };
 
     callback(null, data);
