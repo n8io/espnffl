@@ -1305,9 +1305,13 @@ var scrapeTeamRoster = function(callback){
       var playerName = _.str.trim(txt.split(',')[0]);
       var team = _.str.trim(txt.split(',')[1].split(' ')[1].split(' ')[0]).toUpperCase();
       var position = _.str.trim(txt.split(',')[1].split(' ')[2]);
-      var strMatchup = _.str.trim($(row).find('td').eq(4).text());
-      var strMatchupTime = _.str.trim($(row).find('td').eq(5).text());
-      var matchupGameId = _.str.trim(($(row).find('td').eq(5).find('a').attr('href') || '').split('gameId=')[1]);
+
+      var isMyTeam = !!$(row).find('td.playerEditSlot').length;
+      var tdIndex = isMyTeam ? 4 : 3;
+
+      var strMatchup = _.str.trim($(row).find('td').eq(tdIndex).text());
+      var strMatchupTime = _.str.trim($(row).find('td').eq(tdIndex+1).text());
+      var matchupGameId = _.str.trim(($(row).find('td').eq(tdIndex+1).find('a').attr('href') || '').split('gameId=')[1]);
 
       var player = {
         id: parseInt(playerId, 0),
