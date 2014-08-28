@@ -1301,10 +1301,20 @@ var scrapeTeamRoster = function(callback){
     function parsePlayerInfo(row){
       var td = $(row).find('td.playertablePlayerName');
       var playerId = $(td).attr('id').split('_')[1];
-      var txt = $(td).text().replace(/\s+/g, " ");
+      var txt = _.str.trim($(td).text().replace(/\s+/g, " "), [' ']);
       var playerName = _.str.trim(txt.split(',')[0]);
-      var team = _.str.trim(txt.split(',')[1].split(' ')[1].split(' ')[0]).toUpperCase();
-      var position = _.str.trim(txt.split(',')[1].split(' ')[2]);
+      txt = _.str.trim(txt.replace($(td).find('a').text(), ''), [' ', ',']);
+      var splits = txt.split(' ');
+
+      var team, position;
+      if(splits.length > 3){
+        team = splits[splits.length - 2];
+        position = splits[splits.length - 1];
+      }
+      else{
+        // Its a defense
+        position = splits[1];
+      }
 
       var isMyTeam = !!$(row).find('td.playerEditSlot').length;
       var tdIndex = isMyTeam ? 4 : 3;
