@@ -1291,33 +1291,49 @@ var scrapeTeamRoster = function(callback){
       return;
     }
 
-    var benchRows = $(benchHeaderRow).nextAll().find('td.playertablePlayerName');
-    var starterRows = $(benchHeaderRow).prevAll().find('td.playertablePlayerName');
+    var benchRows = $(benchHeaderRow).nextAll().find('td.playertablePlayerName').parent();
+    var starterRows = $(benchHeaderRow).prevAll().find('td.playertablePlayerName').parent();
 
     var timestamp = moment().utc().format();
     var starters = [];
     var bench = [];
 
     function parsePlayerInfo(row){
-      var playerId = $(row).attr('id').split('_')[1];
-      var txt = $(row).text().replace(/\s+/g, " ");
+      var td = $(row).find('td.playertablePlayerName');
+      var playerId = $(td).attr('id').split('_')[1];
+      var txt = $(td).text().replace(/\s+/g, " ");
       var playerName = _.str.trim(txt.split(',')[0]);
       var team = _.str.trim(txt.split(',')[1].split(' ')[1].split(' ')[0]).toUpperCase();
       var position = _.str.trim(txt.split(',')[1].split(' ')[2]);
+      var strMatchup = _.str.trim($(row).find('td').eq(4).text());
+      var strMatchupTime = _.str.trim($(row).find('td').eq(5).text());
+      var matchupGameId = _.str.trim(($(row).find('td').eq(5).find('a').attr('href') || '').split('gameId=')[1]);
 
-      return {
+      var player = {
         id: parseInt(playerId, 0),
         name: playerName,
         team: team,
         position: position
       };
+
+      if(matchupGameId){
+        player.matchup = {
+          id: parseInt(matchupGameId, 0) || -1,
+          isHome: strMatchup.indexOf('@') === -1,
+          isBye: strMatchup.toUpperCase() === 'BYE',
+          opponent: _.str.trim(strMatchup.toUpperCase(), ['@']),
+          status: strMatchupTime
+        };
+      }
+
+      return player;
     }
 
-    _(starterRows).each(function(row, index){
+    _(starterRows).each(function(row){
       starters.push(parsePlayerInfo(row));
     });
 
-    _(benchRows).each(function(row, index){
+    _(benchRows).each(function(row){
       bench.push(parsePlayerInfo(row));
     });
 
