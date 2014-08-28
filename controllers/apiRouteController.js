@@ -1307,13 +1307,14 @@ var scrapeTeamRoster = function(callback){
       var splits = txt.split(' ');
 
       var team, position;
-      if(splits.length > 3){
-        team = splits[splits.length - 2];
-        position = splits[splits.length - 1];
+      // console.log(splits);
+      if(splits.indexOf('D/ST') === -1){
+        team = splits[0].toUpperCase();
+        position = splits[1];
       }
       else{
         // Its a defense
-        position = splits[1];
+        position = splits[0];
       }
 
       var isMyTeam = !!$(row).find('td.playerEditSlot').length;
@@ -1944,6 +1945,8 @@ function parsePlayerFantasyPosition(actual){
     case 'k':
     case 'pk':
       return 'k'.toUpperCase();
+    case 'd/st':
+      return 'd/st'.toUpperCase();
     default:
       console.log(raw);
       return raw.toUpperCase();
@@ -1988,6 +1991,7 @@ function parsePlayerFantasyPositionCategory(actual){
     case 'dl':
     case 'de':
     case 'dt':
+    case 'd/st':
       return 'def'.toUpperCase();
     case 'k':
     case 'pk':
