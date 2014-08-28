@@ -1329,7 +1329,7 @@ var scrapeTeamRoster = function(callback){
         name: playerName,
         team: team,
         position: position,
-        fantasyPosition: parsePlayerFantasyPosition(position),
+        fantasyPosition: parsePlayerFantasyPosition(position, $(row).find('td.playerSlot').text()),
         fantasyPositionCategory: parsePlayerFantasyPositionCategory(position)
       };
 
@@ -1898,11 +1898,15 @@ function getPlayerId(str){
   return parseInt(str.split('_')[1],0);
 }
 
-function parsePlayerFantasyPosition(actual){
+function parsePlayerFantasyPosition(actual, slotPosition){
   var raw = actual || '';
   raw = raw.toLowerCase();
 
   if(!raw) return actual;
+
+  if(slotPosition && slotPosition.toLowerCase() !== 'bench'){
+    return slotPosition.toUpperCase();
+  }
 
   switch(raw){
     case 'cch':
@@ -1911,6 +1915,7 @@ function parsePlayerFantasyPosition(actual){
     case 'te':
     case 'wr':
     case 'p':
+    case 'rb/wr':
       return raw.toUpperCase();
     case 'rb':
     case 'fb':
@@ -1978,6 +1983,7 @@ function parsePlayerFantasyPositionCategory(actual){
     case 'rt':
     case 'lt':
     case 'ot':
+    case 'rb/wr':
       return 'off'.toUpperCase();
     case 'db':
     case 'cb':
