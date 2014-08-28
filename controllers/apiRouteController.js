@@ -1360,6 +1360,7 @@ var scrapeTeamRoster = function(callback){
     var ownerLast = ownerName.split(' ')[1];
     var teamName = _.str.trim($('.team-name').text().replace($('.team-name em').text(), ''));
     var teamAbbr = _.str.trim($('.team-name em').text(), [' ', '(', ')']);
+    var teamLogo = $('.games-univ-mod1 img').attr('src');
 
     var data = {
       timestamp: timestamp,
@@ -1373,7 +1374,8 @@ var scrapeTeamRoster = function(callback){
       team: {
         id: teamId,
         abbr: teamAbbr,
-        name: teamName
+        name: teamName,
+        logoUrl: teamLogo
       },
       owner: {
         firstName: ownerFirst,
