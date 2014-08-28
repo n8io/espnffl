@@ -1321,6 +1321,7 @@ var scrapeTeamRoster = function(callback){
           id: parseInt(matchupGameId, 0) || -1,
           isHome: strMatchup.indexOf('@') === -1,
           isBye: strMatchup.toUpperCase() === 'BYE',
+          isStarted: strMatchupTime.indexOf('-') > -1,
           opponent: _.str.trim(strMatchup.toUpperCase(), ['@']),
           status: strMatchupTime
         };
