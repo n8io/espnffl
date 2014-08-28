@@ -1317,7 +1317,9 @@ var scrapeTeamRoster = function(callback){
         id: parseInt(playerId, 0),
         name: playerName,
         team: team,
-        position: position
+        position: position,
+        fantasyPosition: parsePlayerFantasyPosition(position),
+        fantasyPositionCategory: parsePlayerFantasyPositionCategory(position)
       };
 
       if(matchupGameId){
@@ -1883,6 +1885,108 @@ function getPlayerInfo(pstr){
 
 function getPlayerId(str){
   return parseInt(str.split('_')[1],0);
+}
+
+function parsePlayerFantasyPosition(actual){
+  var raw = actual || '';
+  raw = raw.toLowerCase();
+
+  if(!raw) return actual;
+
+  switch(raw){
+    case 'cch':
+      return 'coach'.toUpperCase();
+    case 'qb':
+    case 'te':
+    case 'wr':
+    case 'p':
+      return raw.toUpperCase();
+    case 'rb':
+    case 'fb':
+    case 'hb':
+      return 'rb'.toUpperCase();
+    case 'db':
+    case 'cb':
+    case 's':
+    case 'fs':
+    case 'ss':
+    case 'ws':
+      return 'db'.toUpperCase();
+    case 'lb':
+    case 'ilb':
+    case 'olb':
+      return 'lb'.toUpperCase();
+    case 'dl':
+    case 'de':
+    case 'dt':
+      return 'dl'.toUpperCase();
+    case 'ol':
+    case 'c':
+    case 'g':
+    case 'og':
+    case 'lg':
+    case 'rg':
+    case 't':
+    case 'rt':
+    case 'lt':
+    case 'ot':
+      return 'ol'.toUpperCase();
+    case 'k':
+    case 'pk':
+      return 'k'.toUpperCase();
+    default:
+      console.log(raw);
+      return raw.toUpperCase();
+  }
+}
+
+function parsePlayerFantasyPositionCategory(actual){
+  var raw = actual || '';
+  raw = raw.toLowerCase();
+
+  if(!raw) return actual;
+
+  switch(raw){
+    case 'cch':
+      return 'coach'.toUpperCase();
+    case 'qb':
+    case 'te':
+    case 'wr':
+    case 'rb':
+    case 'fb':
+    case 'hb':
+    case 'ol':
+    case 'c':
+    case 'g':
+    case 'og':
+    case 'lg':
+    case 'rg':
+    case 't':
+    case 'rt':
+    case 'lt':
+    case 'ot':
+      return 'off'.toUpperCase();
+    case 'db':
+    case 'cb':
+    case 's':
+    case 'fs':
+    case 'ss':
+    case 'ws':
+    case 'lb':
+    case 'ilb':
+    case 'olb':
+    case 'dl':
+    case 'de':
+    case 'dt':
+      return 'def'.toUpperCase();
+    case 'k':
+    case 'pk':
+    case 'p':
+      return 'st'.toUpperCase();
+    default:
+      console.log(raw);
+      return raw.toUpperCase();
+  }
 }
 
 module.exports = apiRouteController;
