@@ -480,7 +480,8 @@ var scrapeMembers = function(callback){
 
     var teams = [];
     _(teamRows).each(function(html){
-      var teamId = _.str.trim($(html).find('td').eq(0).text());
+      var link = $(html).find('td').eq(2).find('a').attr('href');
+      var teamId = _.str.trim(link.split('&')[1].split('=')[1]);
       var teamNameAbbr = _.str.trim($(html).find('td').eq(1).text());
       var teamName = _.str.trim($(html).find('td.teamName a').text()).replace('  ',' ');
       var ownerName = _.str.titleize(_.str.trim($(html).find('td').eq(4).find('a').text()));
