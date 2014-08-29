@@ -1307,11 +1307,12 @@ var scrapeTeamRoster = function(callback){
       var splits = txt.split(' ');
 
       var team, position;
-      // console.log(splits);
-      if(splits.length === 4){
+      // console.log('playerName',playerName);
+      // console.log('splits',splits);
+      if(splits.length >= 4){
         if(splits.indexOf('D/ST') === -1){
-          team = splits[2].toUpperCase();
-          position = splits[3].toUpperCase();
+          team = splits[splits.length-2].toUpperCase();
+          position = splits[splits.length - 1].toUpperCase();
         }
         else{
           // It's a defense
