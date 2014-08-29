@@ -1331,6 +1331,11 @@ var scrapeTeamRoster = function(callback){
         position = splits[0];
       }
 
+      if(team === 'WAS'){
+        // Hack update because ESPN changed
+        team = 'WSH';
+      }
+
       var isMyTeam = !!$(row).find('td.playerEditSlot').length;
       var tdIndex = isMyTeam ? 4 : 3;
 
@@ -2020,6 +2025,11 @@ function getTeamInfoFromShortName(shortName){
       "id": "60028",
       "name": "Redskins",
       "key": "WSH"
+    },
+    {
+      "id": "60028",
+      "name": "Redskins",
+      "key": "WAS"
     },
     {
       "id": "60009",
