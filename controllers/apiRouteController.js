@@ -8,6 +8,7 @@ var _ = require('underscore'),
   fs = require('fs');
 
 var lastAuthDate = moment().add('week', -1); //Default to past
+var maxValidYear = (new Date()).getFullYear();
 
 var apiRouteController = function(){};
 
@@ -22,7 +23,7 @@ apiRouteController.Members = function (req, res) {
   leagueId = parseInt(leagueId, 0);
   seasonId = parseInt(seasonId, 0);
 
-  if(leagueId <= 0 || seasonId <= 0){
+  if(leagueId <= 0 || seasonId <= 0 || seasonId > maxValidYear){
     return res.status(400).json({ 'message' : 'A valid leagueId and seasonId must be provided.' });
   }
 
@@ -86,7 +87,7 @@ apiRouteController.TransactionCounts = function (req, res) {
   leagueId = parseInt(leagueId, 0);
   seasonId = parseInt(seasonId, 0);
 
-  if(leagueId <= 0 || seasonId <= 0){
+  if(leagueId <= 0 || seasonId <= 0 || seasonId > maxValidYear){
     return res.status(400).json({ 'message' : 'A valid leagueId and seasonId must be provided.' });
   }
 
@@ -115,7 +116,7 @@ apiRouteController.FinalStandings = function (req, res) {
   leagueId = parseInt(leagueId, 0);
   seasonId = parseInt(seasonId, 0);
 
-  if(leagueId <= 0 || seasonId <= 0){
+  if(leagueId <= 0 || seasonId <= 0 || seasonId > maxValidYear){
     return res.status(400).json({ 'message' : 'A valid leagueId and seasonId must be provided.' });
   }
 
@@ -144,7 +145,7 @@ apiRouteController.Settings = function (req, res) {
   leagueId = parseInt(leagueId, 0);
   seasonId = parseInt(seasonId, 0);
 
-  if(leagueId <= 0 || seasonId <= 0){
+  if(leagueId <= 0 || seasonId <= 0 || seasonId > maxValidYear){
     return res.status(400).json({ 'message' : 'A valid leagueId and seasonId must be provided.' });
   }
 
@@ -175,7 +176,7 @@ apiRouteController.WeekScores = function (req, res) {
   seasonId = parseInt(seasonId, 0);
   weekId = parseInt(weekId, 0);
 
-  if(leagueId <= 0 || seasonId <= 0 || weekId <= 0){
+  if(leagueId <= 0 || seasonId <= 0 || seasonId > maxValidYear || weekId <= 0){
     return res.status(400).json({ 'message' : 'A valid leagueId, seasonId, and weekId must be provided.' });
   }
 
@@ -206,7 +207,7 @@ apiRouteController.TeamSchedule = function (req, res) {
   seasonId = parseInt(seasonId, 0);
   teamId = parseInt(teamId, 0);
 
-  if(leagueId <= 0 || seasonId <= 0 || teamId <= 0){
+  if(leagueId <= 0 || seasonId <= 0 || seasonId > maxValidYear || teamId <= 0){
     return res.status(400).json({ 'message' : 'A valid leagueId, seasonId, and teamId must be provided.' });
   }
 
@@ -237,7 +238,7 @@ apiRouteController.TeamRoster = function (req, res) {
   seasonId = parseInt(seasonId, 0);
   teamId = parseInt(teamId, 0);
 
-  if(leagueId <= 0 || seasonId <= 0 || teamId <= 0){
+  if(leagueId <= 0 || seasonId <= 0 || seasonId > maxValidYear || teamId <= 0){
     return res.status(400).json({ 'message' : 'A valid leagueId, seasonId, and teamId must be provided.' });
   }
 
@@ -266,7 +267,7 @@ apiRouteController.DraftRecap = function (req, res) {
   leagueId = parseInt(leagueId, 0);
   seasonId = parseInt(seasonId, 0);
 
-  if(leagueId <= 0 || seasonId <= 0){
+  if(leagueId <= 0 || seasonId <= 0 || seasonId > maxValidYear){
     return res.status(400).json({ 'message' : 'A valid leagueId and seasonId must be provided.' });
   }
 
@@ -299,7 +300,7 @@ apiRouteController.Matchup = function (req, res) {
   weekId = parseInt(weekId, 0);
   teamId = parseInt(teamId, 0);
 
-  if(leagueId <= 0 || seasonId <= 0 || weekId <= 0 || teamId <= 0){
+  if(leagueId <= 0 || seasonId <= 0 || seasonId > maxValidYear || weekId <= 0 || teamId <= 0){
     return res.status(400).json({ 'message' : 'A valid leagueId/seasonId/weekId/teamId must be provided.' });
   }
 
