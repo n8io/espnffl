@@ -2090,9 +2090,15 @@ function getTeamInfoFromShortName(shortName){
     }
   ];
 
-  return _(teams).find(function(t){
+  var found =  _(teams).find(function(t){
     return t.name.toUpperCase() === (shortName||'').toUpperCase();
   });
+
+  if(!found){
+    logger.error('Could not located a team with shortName: ' + shortName);
+  }
+
+  return found;
 }
 
 function parsePlayerFantasyPosition(actual, slotPosition){
