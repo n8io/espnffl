@@ -1308,12 +1308,26 @@ var scrapeTeamRoster = function(callback){
 
       var team, position;
       // console.log(splits);
-      if(splits.indexOf('D/ST') === -1){
+      if(splits.length === 4){
+        if(splits.indexOf('D/ST') === -1){
+          team = splits[2].toUpperCase();
+          position = splits[3].toUpperCase();
+        }
+        else{
+          // It's a defense
+          playerName = splits[0];
+          position = splits[1].toUpperCase();
+          team = splits[2].toUpperCase();
+        }
+      }
+      else if(splits.indexOf('D/ST') === -1){
         team = splits[0].toUpperCase();
         position = splits[1];
       }
       else{
         // Its a defense
+        playerName = _.str.trim(playerName, ['D/ST', ' ']);
+        team = getTeamInfoFromShortName(playerName).key;
         position = splits[0];
       }
 
@@ -1898,6 +1912,175 @@ function getPlayerInfo(pstr){
 
 function getPlayerId(str){
   return parseInt(str.split('_')[1],0);
+}
+
+function getTeamInfoFromShortName(shortName){
+  var teams = [
+    {
+      "id": "60026",
+      "name": "Seahawks",
+      "key": "SEA"
+    },
+    {
+      "id": "60029",
+      "name": "Panthers",
+      "key": "CAR"
+    },
+    {
+      "id": "60012",
+      "name": "Chiefs",
+      "key": "KC"
+    },
+    {
+      "id": "60004",
+      "name": "Bengals",
+      "key": "CIN"
+    },
+    {
+      "id": "60022",
+      "name": "Cardinals",
+      "key": "ARI"
+    },
+    {
+      "id": "60025",
+      "name": "49ers",
+      "key": "SF"
+    },
+    {
+      "id": "60014",
+      "name": "Rams",
+      "key": "STL"
+    },
+    {
+      "id": "60002",
+      "name": "Bills",
+      "key": "BUF"
+    },
+    {
+      "id": "60017",
+      "name": "Patriots",
+      "key": "NE"
+    },
+    {
+      "id": "60011",
+      "name": "Colts",
+      "key": "IND"
+    },
+    {
+      "id": "60018",
+      "name": "Saints",
+      "key": "NO"
+    },
+    {
+      "id": "60027",
+      "name": "Buccaneers",
+      "key": "TB"
+    },
+    {
+      "id": "60005",
+      "name": "Browns",
+      "key": "CLE"
+    },
+    {
+      "id": "60007",
+      "name": "Broncos",
+      "key": "DEN"
+    },
+    {
+      "id": "60033",
+      "name": "Ravens",
+      "key": "BAL"
+    },
+    {
+      "id": "60019",
+      "name": "Giants",
+      "key": "NYG"
+    },
+    {
+      "id": "60023",
+      "name": "Steelers",
+      "key": "PIT"
+    },
+    {
+      "id": "60010",
+      "name": "Titans",
+      "key": "TEN"
+    },
+    {
+      "id": "60015",
+      "name": "Dolphins",
+      "key": "MIA"
+    },
+    {
+      "id": "60008",
+      "name": "Lions",
+      "key": "DET"
+    },
+    {
+      "id": "60028",
+      "name": "Redskins",
+      "key": "WSH"
+    },
+    {
+      "id": "60009",
+      "name": "Packers",
+      "key": "GB"
+    },
+    {
+      "id": "60013",
+      "name": "Raiders",
+      "key": "OAK"
+    },
+    {
+      "id": "60021",
+      "name": "Eagles",
+      "key": "PHI"
+    },
+    {
+      "id": "60020",
+      "name": "Jets",
+      "key": "NYJ"
+    },
+    {
+      "id": "60006",
+      "name": "Cowboys",
+      "key": "DAL"
+    },
+    {
+      "id": "60003",
+      "name": "Bears",
+      "key": "CHI"
+    },
+    {
+      "id": "60024",
+      "name": "Chargers",
+      "key": "SD"
+    },
+    {
+      "id": "60034",
+      "name": "Texans",
+      "key": "HOU"
+    },
+    {
+      "id": "60001",
+      "name": "Falcons",
+      "key": "ATL"
+    },
+    {
+      "id": "60030",
+      "name": "Jaguars",
+      "key": "JAC"
+    },
+    {
+      "id": "60016",
+      "name": "Vikings",
+      "key": "MIN"
+    }
+  ];
+
+  return _(teams).find(function(t){
+    return t.name.toUpperCase() === (shortName||'').toUpperCase();
+  });
 }
 
 function parsePlayerFantasyPosition(actual, slotPosition){
