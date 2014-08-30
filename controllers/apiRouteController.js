@@ -500,8 +500,8 @@ var scrapeMembers = function(callback){
           abbr: teamNameAbbr
         },
         owner: {
-          firstName: firstName,
-          lastName: lastName
+          firstName: _.str.capitalize(firstName),
+          lastName: _.str.capitalize(lastName)
         }
       });
     });
