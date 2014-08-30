@@ -1302,36 +1302,31 @@ var scrapeTeamRoster = function(callback){
 
     function parsePlayerInfo(row){
       var td = $(row).find('td.playertablePlayerName');
+      var injuryStatus = $(td).find('span[title]');
       var playerId = $(td).attr('id').split('_')[1];
-      var txt = _.str.trim($(td).text().replace(/\s+/g, " "), [' ']);
-      var playerName = _.str.trim(txt.split(',')[0]);
-      txt = _.str.trim(txt.replace($(td).find('a').text(), ''), [' ', ',']);
-      var splits = txt.split(' ');
+      var playerLink = $(td).find('a').first();
+      var txt = _.str.trim(playerLink.text(), [' ', ',']);
+      var isTeamDefense = txt.indexOf('D/ST') > -1;
+      var playerName = _.str.trim(txt.replace('D/ST', '').replace('*', ''));
 
-      var team, position;
-      // console.log('playerName',playerName);
-      // console.log('splits',splits);
-      if(splits.length >= 4){
-        if(splits.indexOf('D/ST') === -1){
-          team = splits[splits.length-2].toUpperCase();
-          position = splits[splits.length - 1].toUpperCase();
-        }
-        else{
-          // It's a defense
-          playerName = splits[0];
-          position = splits[1].toUpperCase();
-          team = splits[2].toUpperCase();
-        }
+      var team, position, injury;
+      if(injuryStatus.length){
+        injury = {
+          key: $(injuryStatus).text(),
+          status: $(injuryStatus).attr('title')
+        };
+        $(injuryStatus).remove();
       }
-      else if(splits.indexOf('D/ST') === -1){
-        team = splits[0].toUpperCase();
-        position = splits[1];
+
+      if(isTeamDefense){
+        team = getTeamInfoFromShortName(playerName).key;
+        position = 'D/ST';
       }
       else{
-        // Its a defense
-        playerName = _.str.trim(playerName, ['D/ST', ' ']);
-        team = getTeamInfoFromShortName(playerName).key;
-        position = splits[0];
+        $(td).find('a').remove();
+        txt = _.str.trim($(td).text().replace(/\s+/g, " "), [' ', ',', '*']);
+        team = _.str.trim(txt.split(' ')[0]).toUpperCase();
+        position = _(txt.split(' ')).rest(1).join('');
       }
 
       if(team === 'WAS'){
@@ -1364,6 +1359,10 @@ var scrapeTeamRoster = function(callback){
           opponent: _.str.trim(strMatchup.toUpperCase(), ['@']),
           status: strMatchupTime
         };
+      }
+
+      if(injury){
+        player.injury = injury;
       }
 
       return player;
@@ -2120,6 +2119,8 @@ function parsePlayerFantasyPosition(actual, slotPosition){
     case 'wr':
     case 'p':
     case 'rb/wr':
+    case 'd/st':
+    case 'de,lb':
       return raw.toUpperCase();
     case 'rb':
     case 'fb':
@@ -2154,8 +2155,6 @@ function parsePlayerFantasyPosition(actual, slotPosition){
     case 'k':
     case 'pk':
       return 'k'.toUpperCase();
-    case 'd/st':
-      return 'd/st'.toUpperCase();
     default:
       console.log(raw);
       return raw.toUpperCase();
@@ -2202,6 +2201,7 @@ function parsePlayerFantasyPositionCategory(actual){
     case 'de':
     case 'dt':
     case 'd/st':
+    case 'de,lb':
       return 'def'.toUpperCase();
     case 'k':
     case 'pk':
