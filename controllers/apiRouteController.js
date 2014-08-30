@@ -672,8 +672,8 @@ var scrapeTransactionCounter = function(callback){
           name: teamName
         },
         owner: {
-          firstName: ownerFirstName,
-          lastName: ownerLastName
+          firstName: _.str.capitalize(ownerFirstName),
+          lastName: _.str.capitalize(ownerLastName)
         },
         feeTotal: feeTotal,
         paidAmount: paid,
@@ -769,8 +769,8 @@ var scrapeFinalStandings = function(callback){
           name: teamName
         },
         owner: {
-          firstName: firstName,
-          lastName: lastName
+          firstName: _.str.capitalize(firstName),
+          lastName: _.str.capitalize(lastName)
         },
         overallRecord: overallRecord,
         points: {
@@ -1168,8 +1168,8 @@ var scrapeWeekScores = function(callback){
               abbrev: teamAbbr
             },
             owner: {
-              firstName: ownerName.split(' ')[0],
-              lastName: ownerName.split(' ')[1]
+              firstName: _.str.capitalize(ownerName.split(' ')[0]),
+              lastName: _.str.capitalize(ownerName.split(' ')[1])
             }
           });
         }
@@ -1231,8 +1231,8 @@ var scrapeTeamSchedule = function(callback){
         id: getTeamIdFromUrl($(opponentLink).attr('href')),
         name: _.str.trim($(opponentLink).text()),
         owner: {
-          firstName: ownerName.split(' ')[0],
-          lastName: ownerName.split(' ')[1]
+          firstName: _.str.capitalize(ownerName.split(' ')[0]),
+          lastName: _.str.capitalize(ownerName.split(' ')[1])
         }
       };
 
@@ -1400,8 +1400,8 @@ var scrapeTeamRoster = function(callback){
         logoUrl: teamLogo
       },
       owner: {
-        firstName: ownerFirst,
-        lastName: ownerLast
+        firstName: _.str.capitalize(ownerFirst),
+        lastName: _.str.capitalize(ownerLast)
       },
       roster: {
         starters: starters.reverse(),
@@ -1461,8 +1461,8 @@ var scrapeDraftRecap = function(callback){
             name: _.str.trim($(teamLink).text()).split('  ').join('')
           },
           owner: {
-            firstName: ownerName.split(' ')[0],
-            lastName: ownerName.split(' ')[1]
+            firstName: _.str.capitalize(ownerName.split(' ')[0]),
+            lastName: _.str.capitalize(ownerName.split(' ')[1])
           }
         });
 
