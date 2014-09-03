@@ -66,7 +66,9 @@ apiRouteController.Info = function (req, res) {
   async.series(
     {
       espnAuth: authenticateEspnCredentials,
-      scrapeLeagueInfo: scrapeLeagueInfo
+      scrapeLeagueInfo: function(callback){
+        return scrapeLeagueInfo(req, callback);
+      }
     },
     // On Complete
     function(err, results){
@@ -524,10 +526,12 @@ var scrapeMembers = function(callback){
   });
 };
 
-var scrapeLeagueInfo = function(callback){
+var scrapeLeagueInfo = function(req, callback){
   var reqOpt = {
-    url: 'http://games.espn.go.com/ffl/leaguesetup/ownerinfo?leagueId=' + leagueId + (seasonId > 0 ? '&seasonId=' + seasonId : '')
+    url: 'http://games.espn.go.com/ffl/leaguesetup/ownerinfo?leagueId=' + req.params.leagueId + (req.params.seasonId > 0 ? '&seasonId=' + req.params.seasonId : '')
   };
+
+  console.log(JSON.stringify(reqOpt,null,2));
 
   request.get(reqOpt, function(err, result, body){
     if(err){
@@ -565,12 +569,12 @@ var scrapeLeagueInfo = function(callback){
     var data = {
       timestamp: moment().utc().format(),
       league: {
-        id: leagueId,
+        id: req.params.leagueId,
         name: leagueName,
         seasons: seasons
       },
       season: {
-        id: (seasonId == -1 ? logicalSeasonId : currentSeasonId),
+        id: (req.params.seasonId === -1 ? logicalSeasonId : currentSeasonId),
         isComplete: isSeasonConcluded
       }
     };
