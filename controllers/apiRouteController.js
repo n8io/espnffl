@@ -531,8 +531,6 @@ var scrapeLeagueInfo = function(req, callback){
     url: 'http://games.espn.go.com/ffl/leaguesetup/ownerinfo?leagueId=' + req.params.leagueId + (req.params.seasonId > 0 ? '&seasonId=' + req.params.seasonId : '')
   };
 
-  console.log(JSON.stringify(reqOpt,null,2));
-
   request.get(reqOpt, function(err, result, body){
     if(err){
       console.log('Failed to retrieve given league and season.'.red);
@@ -1309,7 +1307,16 @@ var scrapeTeamRoster = function(callback){
       var injuryStatus = $(td).find('span[title]');
       var playerId = $(td).attr('id').split('_')[1];
       var playerLink = $(td).find('a').first();
-      var txt = _.str.trim(playerLink.text(), [' ', ',']);
+      var txt = '';
+      var isPastRoster = !$(td).find('a').length;
+
+      if(isPastRoster){
+        txt = _.str.trim($(td).text().split(',')[0]);
+      }
+      else{
+        txt = _.str.trim(playerLink.text(), [' ', ',']);
+      }
+
       var isTeamDefense = txt.indexOf('D/ST') > -1;
       var playerName = _.str.trim(txt.replace('D/ST', '').replace('*', ''));
 
@@ -1329,8 +1336,15 @@ var scrapeTeamRoster = function(callback){
       else{
         $(td).find('a').remove();
         txt = _.str.trim($(td).text().replace(/\s+/g, " "), [' ', ',', '*']);
-        team = _.str.trim(txt.split(' ')[0]).toUpperCase();
-        position = _(txt.split(' ')).rest(1).join('');
+
+        if(isPastRoster){
+          team = _.str.trim(txt.split(' ')[2]).toUpperCase();
+          position = _(txt.split(' ')).last();
+        }
+        else{
+          team = _.str.trim(txt.split(' ')[0]).toUpperCase();
+          position = _(txt.split(' ')).rest(1).join('');
+        }
       }
 
       if(team === 'WAS'){
