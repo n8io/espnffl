@@ -1383,9 +1383,16 @@ var scrapeTeamRoster = function(callback){
         }
       }
 
-      if(team === 'WAS'){
-        // Hack update because ESPN changed
-        team = 'WSH';
+      // Hack update because ESPN changed
+      switch(team){
+        case 'WAS':
+          team = 'WSH';
+          break;
+        case 'JAX':
+          team = 'JAC';
+          break;
+        default:
+          break;
       }
 
       var isMyTeam = !!$(row).find('td.playerEditSlot').length;
