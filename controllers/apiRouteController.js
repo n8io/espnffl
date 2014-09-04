@@ -392,6 +392,36 @@ apiRouteController.TrophyHistory = function (req, res) {
   );
 };
 
+apiRouteController.PlayerNews = function (req, res) {
+  leagueId = req.params.leagueId || -1;
+  seasonId = req.params.seasonId || -1;
+  playerId = req.params.playerId || -1;
+
+  leagueId = parseInt(leagueId, 0);
+  seasonId = parseInt(seasonId, 0);
+  playerId = parseInt(playerId, 0);
+
+  if(leagueId <= 0 || seasonId <= 0 || playerId <= 0){
+    return res.status(400).json({ 'message' : 'A valid leagueId/seasonId/playerId must be provided.' });
+  }
+
+  async.series(
+    {
+      espnAuth: authenticateEspnCredentials,
+      scrapePlayerNews: function(callback){
+        return scrapePlayerNews(leagueId, seasonId, playerId, callback);
+      }
+    },
+    // On Complete
+    function(err, results){
+      if(err){
+        return res.status(500).json({ 'message' : 'Failed to retrieve player news for given playerId.' });
+      }
+      return sendBackValidResponse(res, results.scrapePlayerNews);
+    }
+  );
+};
+
 var authenticateEspnCredentials = function(callback){
   var staleAuthTimeInMs = 1 * 60 * 60 * 1000;
   if(moment().diff(lastAuthDate) <= staleAuthTimeInMs){
@@ -1309,6 +1339,12 @@ var scrapeTeamRoster = function(callback){
       var playerLink = $(td).find('a').first();
       var txt = '';
       var isPastRoster = !$(td).find('a').length;
+      var hasNews = hasVideo = false;
+
+      if($(td).find('img').length){
+        hasNews = $(td).find('img').attr('src').toLowerCase().indexOf('news_breaking') > -1;
+        hasVideo = $(td).find('img').attr('src').toLowerCase().indexOf('video_breaking') > -1;
+      }
 
       if(isPastRoster){
         txt = _.str.trim($(td).text().split(',')[0]);
@@ -1365,7 +1401,9 @@ var scrapeTeamRoster = function(callback){
         team: team,
         position: position,
         fantasyPosition: parsePlayerFantasyPosition(position, $(row).find('td.playerSlot').text()),
-        fantasyPositionCategory: parsePlayerFantasyPositionCategory(position)
+        fantasyPositionCategory: parsePlayerFantasyPositionCategory(position),
+        hasNews: hasNews,
+        hasVideoNews: hasVideo
       };
 
       if(matchupGameId){
@@ -1761,6 +1799,65 @@ var scrapeTrophyHistory = function(callback){
     return;
   });
 };
+
+var scrapePlayerNews = function(leagueId, seasonId, playerId, callback){
+  var reqOpt = {
+    url: 'http://games.espn.go.com/ffl/format/playerpop/news?leagueId=' + leagueId + '&playerId=' + playerId + '&playerIdType=playerId&seasonId=' + seasonId + '&xhr=1'
+  };
+
+  request.get(reqOpt, function(err, result, body){
+    if(err){
+      console.log('Failed to retrieve given player\'s news.'.red);
+      callback(err, null);
+      return;
+    }
+
+    $ = cheerio.load(body);
+
+    if(!$('#pcNewsPlayerName').length || !$('.pni.pni-source-roto').length){
+      console.log('Failed to retrieve player\'s news. League/season/playerId combination may not be valid.'.red);
+      callback(1, null);
+      return;
+    }
+
+    var rows = $('.pni.pni-source-roto');
+
+    var newsItems = [];
+    _(rows).each(function(row){
+      var shortText = $(row).find('.pni-shorttext').text();
+      $(row).find('.pni-longtext .pni-spinlabel').remove();
+      var spinText = $(row).find('.pni-longtext').text();
+      var strDate = $(row).find('.pni-date').text();
+      var date = moment(strDate.split(',').join('') + ' ' + (new Date()).getFullYear());
+
+      newsItems.push({
+        headline: shortText,
+        text: spinText,
+        date: date.format()
+      });
+    });
+
+    var timestamp = moment().utc().format();
+
+    var data = {
+      timestamp: timestamp,
+      league: {
+        id: leagueId
+      },
+      season: {
+        id: seasonId,
+        isComplete: isSeasonConcluded
+      },
+      team: {
+        id: teamId
+      },
+      newsItems: newsItems
+    };
+
+    callback(null, data);
+    return;
+  });
+}
 
 var sendBackValidResponse = function(res, responeBody){
   lastAuthDate = moment();

@@ -18,6 +18,7 @@ module.exports = function(app, options){
     { "method": "get",  "path" : "/:leagueId/:seasonId/transactioncounts",          "controller" : "apiRouteController",  "action" : "TransactionCounts" },
     { "method": "get",  "path" : "/:leagueId/:seasonId/finalstandings",             "controller" : "apiRouteController",  "action" : "FinalStandings" },
     { "method": "get",  "path" : "/:leagueId/:seasonId/settings",                   "controller" : "apiRouteController",  "action" : "Settings" },
+    { "method": "get",  "path" : "/:leagueId/:seasonId/:playerId",                  "controller" : "apiRouteController",  "action" : "PlayerNews" },
     { "method": "get",  "path" : "/:leagueId/:seasonId/:teamId/schedule",           "controller" : "apiRouteController",  "action" : "TeamSchedule" },
     { "method": "get",  "path" : "/:leagueId/:seasonId/:teamId/roster",             "controller" : "apiRouteController",  "action" : "TeamRoster" },
     { "method": "get",  "path" : "/:leagueId/:seasonId/:weekId/scores",             "controller" : "apiRouteController",  "action" : "WeekScores" },
