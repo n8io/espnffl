@@ -1471,6 +1471,8 @@ var scrapeTeamRoster = function(callback){
       }
     };
 
+    data.roster = calculatePercentGameComplete(data.roster);
+
     callback(null, data);
     return;
   });
@@ -2334,5 +2336,84 @@ function parsePlayerFantasyPositionCategory(actual){
       return raw.toUpperCase();
   }
 }
+
+function calculatePercentGameComplete(roster){
+  if(!roster) return roster;
+
+  roster.starters = _(roster.starters).map(function(p){
+    if(p.matchup){
+      p.matchup.percentComplete = parsePercentComplete(p.matchup.status);
+    }
+    return p;
+  });
+
+  roster.bench = _(roster.bench).map(function(p){
+    if(p.matchup){
+      p.matchup.percentComplete = parsePercentComplete(p.matchup.status);
+    }
+    return p;
+  });
+
+  // console.log(roster);
+  return roster;
+};
+
+function parsePercentComplete(status){
+  if(!status) return 0;
+
+  if(status.toLowerCase().indexOf('half') > -1) return 50; // Halftime
+  if(status.toLowerCase().indexOf('w') > -1 || status.toLowerCase().indexOf('l') > -1) return 100; // W or L
+  if(status.toLowerCase().indexOf('ot') > -1) return 100; // Overtime
+
+  switch(status.split(' ').length){
+    case 1:
+      return 100;
+    case 2:
+      if(status.toLowerCase().indexOf('f') > -1) return 100;
+      return 0;
+    case 3:
+      var splits = status.split(' ');
+      var score = splits[0];
+      var timeLeft = splits[1];
+      var qtrStr = splits[2];
+
+      var mins = parseInt(timeLeft.split(':')[0], 0);
+      var secs = parseInt(timeLeft.split(':')[1], 0);
+
+      var qtr = 4;
+      switch(qtrStr[0]){
+        case '1':
+          qtr = 1;
+          break;
+        case '2':
+          qtr = 2;
+          break;
+        case '3':
+          qtr = 3;
+          break;
+        case '4':
+          qtr = 4;
+          break;
+        default:
+          qtr = 5;
+          break;
+      }
+
+      var maxTics = (4*15*60);
+      var nsecs = (15*60) - (mins*60) + secs;
+      var qsecs = ((qtr-1)*15*60);
+      var totalTics = nsecs + qsecs;
+
+      // console.log(nsecs);
+      // console.log(qsecs);
+      // console.log(totalTics);
+      // console.log(maxTics);
+
+      return parseInt(100*(totalTics/maxTics), 0);
+    default:
+      return 0;
+  }
+};
+
 
 module.exports = apiRouteController;
