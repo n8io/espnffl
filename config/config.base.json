@@ -2,6 +2,10 @@
   "name": "ESPN FFL Api",
   "hostname": "0.0.0.0",
   "port": 80,
+  "selfPing": {
+    "uri": "http://espnffl.herokuapp.com/endpoints",
+    "intervalInSecs": 333
+  },
   "compression": {
     "enabled": true
   },
