@@ -3,7 +3,7 @@ var _ = require('underscore'),
   cheerio = require('cheerio'),
   async = require('async'),
   colors = require('colors'),
-  moment = require('moment-timezone'),
+  moment = require('moment'),
   url = require('url'),
   fs = require('fs');
 
@@ -1422,6 +1422,15 @@ var scrapeTeamRoster = function(callback){
           opponent: _.str.trim(strMatchup.toUpperCase(), ['@']),
           status: strMatchupTime
         };
+
+        if(player.matchup.status.indexOf(' ') > -1 && player.matchup.status.indexOf(':') > -1){
+          var date = parseDateFromString(player.matchup.status);
+          if(date){
+            player.matchup.gameDate = date;
+            player.matchup.gameDay = moment(date).format('ddd');
+            player.matchup.gameTime = moment(date).format('h:mma');
+          }
+        }
       }
 
       if(injury){
@@ -2413,6 +2422,73 @@ function parsePercentComplete(status){
     default:
       return 0;
   }
+};
+
+function getNearestDate(weekday){
+  if(!weekday || weekday.length !== 3) {
+    return null;
+  }
+
+  // console.log('weekday', weekday);
+
+  var gameDow = [
+    'Sun',
+    'Mon',
+    'Tue',
+    'Wed',
+    'Thu',
+    'Fri',
+    'Sat'
+  ].indexOf(weekday);
+
+  // console.log('gameDow', gameDow);
+
+  if(gameDow === -1){
+    return null;
+  }
+
+  var tempDt = moment();
+  while(tempDt.weekday() !== gameDow){
+    tempDt.add('days', 1);
+  }
+
+  // console.log('tempDt', tempDt);
+
+  return tempDt.format('YYYY-MM-DD');
+};
+
+function parseDateFromString(shortDateStr){
+  if(!shortDateStr || shortDateStr.split(' ').length !== 2){
+    return null;
+  }
+
+  var dayOfWeek = shortDateStr.split(' ')[0];
+  var timeOfDay = shortDateStr.split(' ')[1];
+
+  // console.log('dayOfWeek', dayOfWeek);
+  // console.log('timeOfDay', timeOfDay);
+
+  var date = getNearestDate(dayOfWeek);
+
+  if(!date) {
+    return null;
+  }
+
+  date = moment(date);
+
+  if(!timeOfDay || timeOfDay.split(':').length !== 2){
+    return null;
+  }
+
+  var hours = parseInt(timeOfDay.split(':')[0], 0);
+  var mins = parseInt(timeOfDay.split(':')[1]);
+
+  hours += 12; // Move to military time
+
+  date.add('hours', hours);
+  date.add('minutes', mins);
+
+  return date.valueOf();
 };
 
 
