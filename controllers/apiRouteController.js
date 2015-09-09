@@ -632,8 +632,6 @@ var scrapeLeagueInfo = function(req, callback) {
     url: 'http://games.espn.go.com/ffl/leaguesetup/ownerinfo?leagueId=' + req.params.leagueId + (req.params.seasonId > 0 ? '&seasonId=' + req.params.seasonId : '')
   };
 
-  console.log(JSON.stringify(reqOpt, null, 2));
-
   request.get(reqOpt, function(err, result, body) {
     if(err) {
       console.log('Failed to retrieve given league and season.'.red);
@@ -644,7 +642,10 @@ var scrapeLeagueInfo = function(req, callback) {
 
     $ = cheerio.load(body);
 
-    console.log(body);
+    if(body.indexOf('<title>Log In') > -1) {
+      console.log('Not logged in'.red);
+      callback(1, null);
+    }
 
     var leagueName = $('.nav-main-breadcrumbs a').eq(2).text();
 
