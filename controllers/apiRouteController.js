@@ -1,4 +1,4 @@
-var request = require('request').defaults({jar:true}); //Create a new cookie jar for maintaining auth
+var request = require('request').defaults({jar: true});
 var _ = require('underscore'),
   cheerio = require('cheerio'),
   async = require('async'),
@@ -10,21 +10,21 @@ var _ = require('underscore'),
 var lastAuthDate = moment().add('week', -1); //Default to past
 var maxValidYear = (new Date()).getFullYear();
 
-var apiRouteController = function(){};
+var apiRouteController = function() {};
 
 var leagueId, seasonId, weekId, teamId, logicalSeasonId;
 
 var isSeasonConcluded = false;
 
-apiRouteController.Members = function (req, res) {
+apiRouteController.Members = function(req, res) {
   leagueId = req.params.leagueId || -1;
   seasonId = req.params.seasonId || -1;
 
   leagueId = parseInt(leagueId, 0);
   seasonId = parseInt(seasonId, 0);
 
-  if(leagueId <= 0 || seasonId <= 0 || seasonId > maxValidYear){
-    return res.status(400).json({ 'message' : 'A valid leagueId and seasonId must be provided.' });
+  if(leagueId <= 0 || seasonId <= 0 || seasonId > maxValidYear) {
+    return res.status(400).json({'message': 'A valid leagueId and seasonId must be provided.'});
   }
 
   logicalSeasonId = moment().get('month') < 8 ? moment().get('year') - 1 : moment().get('year');
@@ -36,10 +36,11 @@ apiRouteController.Members = function (req, res) {
       scrapeMembers: scrapeMembers
     },
     // On Complete
-    function(err, results){
-      if(err){
-        return res.status(500).json({ 'message' : 'Failed to retrieve league members.' });
+    function(err, results) {
+      if(err) {
+        return res.status(500).json({'message': 'Failed to retrieve league members.'});
       }
+
       return sendBackValidResponse(res, results.scrapeMembers);
     }
   );
@@ -47,7 +48,7 @@ apiRouteController.Members = function (req, res) {
   return;
 };
 
-apiRouteController.Info = function (req, res) {
+apiRouteController.Info = function(req, res) {
   leagueId = req.params.leagueId || -1;
   seasonId = req.params.seasonId || -1;
 
@@ -56,8 +57,8 @@ apiRouteController.Info = function (req, res) {
 
   var tempSeasonId = seasonId == -1 ? 9999 : seasonId;
 
-  if(leagueId <= 0 || (leagueId > 0 && tempSeasonId <= 0)){
-    return res.status(400).json({ 'message' : 'A valid leagueId must be provided.' });
+  if(leagueId <= 0 || (leagueId > 0 && tempSeasonId <= 0)) {
+    return res.status(400).json({'message': 'A valid leagueId must be provided.'});
   }
 
   logicalSeasonId = moment().get('month') < 8 ? moment().get('year') - 1 : moment().get('year');
@@ -66,15 +67,16 @@ apiRouteController.Info = function (req, res) {
   async.series(
     {
       espnAuth: authenticateEspnCredentials,
-      scrapeLeagueInfo: function(callback){
+      scrapeLeagueInfo: function(callback) {
         return scrapeLeagueInfo(req, callback);
       }
     },
     // On Complete
-    function(err, results){
-      if(err){
-        return res.status(500).json({ 'message' : 'Failed to retrieve league info.' });
+    function(err, results) {
+      if(err) {
+        return res.status(500).json({'message': 'Failed to retrieve league info.'});
       }
+
       return sendBackValidResponse(res, results.scrapeLeagueInfo);
     }
   );
@@ -82,15 +84,15 @@ apiRouteController.Info = function (req, res) {
   return;
 };
 
-apiRouteController.TransactionCounts = function (req, res) {
+apiRouteController.TransactionCounts = function(req, res) {
   leagueId = req.params.leagueId || -1;
   seasonId = req.params.seasonId || -1;
 
   leagueId = parseInt(leagueId, 0);
   seasonId = parseInt(seasonId, 0);
 
-  if(leagueId <= 0 || seasonId <= 0 || seasonId > maxValidYear){
-    return res.status(400).json({ 'message' : 'A valid leagueId and seasonId must be provided.' });
+  if(leagueId <= 0 || seasonId <= 0 || seasonId > maxValidYear) {
+    return res.status(400).json({'message': 'A valid leagueId and seasonId must be provided.'});
   }
 
   logicalSeasonId = moment().get('month') < 8 ? moment().get('year') - 1 : moment().get('year');
@@ -102,24 +104,25 @@ apiRouteController.TransactionCounts = function (req, res) {
       scrapeTransactionCounter: scrapeTransactionCounter
     },
     // On Complete
-    function(err, results){
-      if(err){
-        return res.status(500).json({ 'message' : 'Failed to retrieve transaction counts.' });
+    function(err, results) {
+      if(err) {
+        return res.status(500).json({'message': 'Failed to retrieve transaction counts.'});
       }
+
       return sendBackValidResponse(res, results.scrapeTransactionCounter);
     }
   );
 };
 
-apiRouteController.FinalStandings = function (req, res) {
+apiRouteController.FinalStandings = function(req, res) {
   leagueId = req.params.leagueId || -1;
   seasonId = req.params.seasonId || -1;
 
   leagueId = parseInt(leagueId, 0);
   seasonId = parseInt(seasonId, 0);
 
-  if(leagueId <= 0 || seasonId <= 0 || seasonId > maxValidYear){
-    return res.status(400).json({ 'message' : 'A valid leagueId and seasonId must be provided.' });
+  if(leagueId <= 0 || seasonId <= 0 || seasonId > maxValidYear) {
+    return res.status(400).json({'message': 'A valid leagueId and seasonId must be provided.'});
   }
 
   logicalSeasonId = moment().get('month') < 8 ? moment().get('year') - 1 : moment().get('year');
@@ -131,24 +134,25 @@ apiRouteController.FinalStandings = function (req, res) {
       scrapeFinalStandings: scrapeFinalStandings
     },
     // On Complete
-    function(err, results){
-      if(err){
-        return res.status(500).json({ 'message' : 'Failed to retrieve final standings.' });
+    function(err, results) {
+      if(err) {
+        return res.status(500).json({'message': 'Failed to retrieve final standings.'});
       }
+
       return sendBackValidResponse(res, results.scrapeFinalStandings);
     }
   );
 };
 
-apiRouteController.Settings = function (req, res) {
+apiRouteController.Settings = function(req, res) {
   leagueId = req.params.leagueId || -1;
   seasonId = req.params.seasonId || -1;
 
   leagueId = parseInt(leagueId, 0);
   seasonId = parseInt(seasonId, 0);
 
-  if(leagueId <= 0 || seasonId <= 0 || seasonId > maxValidYear){
-    return res.status(400).json({ 'message' : 'A valid leagueId and seasonId must be provided.' });
+  if(leagueId <= 0 || seasonId <= 0 || seasonId > maxValidYear) {
+    return res.status(400).json({'message': 'A valid leagueId and seasonId must be provided.'});
   }
 
   logicalSeasonId = moment().get('month') < 8 ? moment().get('year') - 1 : moment().get('year');
@@ -160,16 +164,17 @@ apiRouteController.Settings = function (req, res) {
       scrapeLeagueSettings: scrapeLeagueSettings
     },
     // On Complete
-    function(err, results){
-      if(err){
-        return res.status(500).json({ 'message' : 'Failed to retrieve league settings.' });
+    function(err, results) {
+      if(err) {
+        return res.status(500).json({'message': 'Failed to retrieve league settings.'});
       }
+
       return sendBackValidResponse(res, results.scrapeLeagueSettings);
     }
   );
 };
 
-apiRouteController.WeekScores = function (req, res) {
+apiRouteController.WeekScores = function(req, res) {
   leagueId = req.params.leagueId || -1;
   seasonId = req.params.seasonId || -1;
   weekId = req.params.weekId || -1;
@@ -178,8 +183,8 @@ apiRouteController.WeekScores = function (req, res) {
   seasonId = parseInt(seasonId, 0);
   weekId = parseInt(weekId, 0);
 
-  if(leagueId <= 0 || seasonId <= 0 || seasonId > maxValidYear || weekId <= 0){
-    return res.status(400).json({ 'message' : 'A valid leagueId, seasonId, and weekId must be provided.' });
+  if(leagueId <= 0 || seasonId <= 0 || seasonId > maxValidYear || weekId <= 0) {
+    return res.status(400).json({'message': 'A valid leagueId, seasonId, and weekId must be provided.'});
   }
 
   logicalSeasonId = moment().get('month') < 8 ? moment().get('year') - 1 : moment().get('year');
@@ -191,16 +196,17 @@ apiRouteController.WeekScores = function (req, res) {
       scrapeWeekScores: scrapeWeekScores
     },
     // On Complete
-    function(err, results){
-      if(err){
-        return res.status(500).json({ 'message' : 'Failed to retrieve the given weeks scores.' });
+    function(err, results) {
+      if(err) {
+        return res.status(500).json({'message': 'Failed to retrieve the given weeks scores.'});
       }
+
       return sendBackValidResponse(res, results.scrapeWeekScores);
     }
   );
 };
 
-apiRouteController.TeamSchedule = function (req, res) {
+apiRouteController.TeamSchedule = function(req, res) {
   leagueId = req.params.leagueId || -1;
   seasonId = req.params.seasonId || -1;
   teamId = req.params.teamId || -1;
@@ -209,8 +215,8 @@ apiRouteController.TeamSchedule = function (req, res) {
   seasonId = parseInt(seasonId, 0);
   teamId = parseInt(teamId, 0);
 
-  if(leagueId <= 0 || seasonId <= 0 || seasonId > maxValidYear || teamId <= 0){
-    return res.status(400).json({ 'message' : 'A valid leagueId, seasonId, and teamId must be provided.' });
+  if(leagueId <= 0 || seasonId <= 0 || seasonId > maxValidYear || teamId <= 0) {
+    return res.status(400).json({'message': 'A valid leagueId, seasonId, and teamId must be provided.'});
   }
 
   logicalSeasonId = moment().get('month') < 8 ? moment().get('year') - 1 : moment().get('year');
@@ -222,16 +228,17 @@ apiRouteController.TeamSchedule = function (req, res) {
       scrapeTeamSchedule: scrapeTeamSchedule
     },
     // On Complete
-    function(err, results){
-      if(err){
-        return res.status(500).json({ 'message' : 'Failed to retrieve the given weeks scores.' });
+    function(err, results) {
+      if(err) {
+        return res.status(500).json({'message': 'Failed to retrieve the given weeks scores.'});
       }
+
       return sendBackValidResponse(res, results.scrapeTeamSchedule);
     }
   );
 };
 
-apiRouteController.TeamRoster = function (req, res) {
+apiRouteController.TeamRoster = function(req, res) {
   leagueId = req.params.leagueId || -1;
   seasonId = req.params.seasonId || -1;
   teamId = req.params.teamId || -1;
@@ -240,8 +247,8 @@ apiRouteController.TeamRoster = function (req, res) {
   seasonId = parseInt(seasonId, 0);
   teamId = parseInt(teamId, 0);
 
-  if(leagueId <= 0 || seasonId <= 0 || seasonId > maxValidYear || teamId <= 0){
-    return res.status(400).json({ 'message' : 'A valid leagueId, seasonId, and teamId must be provided.' });
+  if(leagueId <= 0 || seasonId <= 0 || seasonId > maxValidYear || teamId <= 0) {
+    return res.status(400).json({'message': 'A valid leagueId, seasonId, and teamId must be provided.'});
   }
 
   logicalSeasonId = moment().get('month') < 8 ? moment().get('year') - 1 : moment().get('year');
@@ -253,24 +260,25 @@ apiRouteController.TeamRoster = function (req, res) {
       scrapeTeamRoster: scrapeTeamRoster
     },
     // On Complete
-    function(err, results){
-      if(err){
-        return res.status(500).json({ 'message' : 'Failed to retrieve the given weeks scores.' });
+    function(err, results) {
+      if(err) {
+        return res.status(500).json({'message': 'Failed to retrieve the given weeks scores.'});
       }
+
       return sendBackValidResponse(res, results.scrapeTeamRoster);
     }
   );
 };
 
-apiRouteController.DraftRecap = function (req, res) {
+apiRouteController.DraftRecap = function(req, res) {
   leagueId = req.params.leagueId || -1;
   seasonId = req.params.seasonId || -1;
 
   leagueId = parseInt(leagueId, 0);
   seasonId = parseInt(seasonId, 0);
 
-  if(leagueId <= 0 || seasonId <= 0 || seasonId > maxValidYear){
-    return res.status(400).json({ 'message' : 'A valid leagueId and seasonId must be provided.' });
+  if(leagueId <= 0 || seasonId <= 0 || seasonId > maxValidYear) {
+    return res.status(400).json({'message': 'A valid leagueId and seasonId must be provided.'});
   }
 
   logicalSeasonId = moment().get('month') < 8 ? moment().get('year') - 1 : moment().get('year');
@@ -282,16 +290,17 @@ apiRouteController.DraftRecap = function (req, res) {
       scrapeDraftRecap: scrapeDraftRecap
     },
     // On Complete
-    function(err, results){
-      if(err){
-        return res.status(500).json({ 'message' : 'Failed to retrieve the given weeks scores.' });
+    function(err, results) {
+      if(err) {
+        return res.status(500).json({'message': 'Failed to retrieve the given weeks scores.'});
       }
+
       return sendBackValidResponse(res, results.scrapeDraftRecap);
     }
   );
 };
 
-apiRouteController.Matchup = function (req, res) {
+apiRouteController.Matchup = function(req, res) {
   leagueId = req.params.leagueId || -1;
   seasonId = req.params.seasonId || -1;
   weekId = req.params.weekId || -1;
@@ -302,8 +311,8 @@ apiRouteController.Matchup = function (req, res) {
   weekId = parseInt(weekId, 0);
   teamId = parseInt(teamId, 0);
 
-  if(leagueId <= 0 || seasonId <= 0 || seasonId > maxValidYear || weekId <= 0 || teamId <= 0){
-    return res.status(400).json({ 'message' : 'A valid leagueId/seasonId/weekId/teamId must be provided.' });
+  if(leagueId <= 0 || seasonId <= 0 || seasonId > maxValidYear || weekId <= 0 || teamId <= 0) {
+    return res.status(400).json({'message': 'A valid leagueId/seasonId/weekId/teamId must be provided.'});
   }
 
   logicalSeasonId = moment().get('month') < 8 ? moment().get('year') - 1 : moment().get('year');
@@ -315,16 +324,17 @@ apiRouteController.Matchup = function (req, res) {
       scrapeMatchup: scrapeMatchup
     },
     // On Complete
-    function(err, results){
-      if(err){
-        return res.status(500).json({ 'message' : 'Failed to retrieve the given matchup.' });
+    function(err, results) {
+      if(err) {
+        return res.status(500).json({'message': 'Failed to retrieve the given matchup.'});
       }
+
       return sendBackValidResponse(res, results.scrapeMatchup);
     }
   );
 };
 
-apiRouteController.Trophies = function (req, res) {
+apiRouteController.Trophies = function(req, res) {
   leagueId = req.params.leagueId || -1;
   seasonId = req.params.seasonId || -1;
   weekId = req.params.weekId || -1;
@@ -335,8 +345,8 @@ apiRouteController.Trophies = function (req, res) {
   weekId = parseInt(weekId, 0);
   teamId = parseInt(teamId, 0);
 
-  if(leagueId <= 0 ){
-    return res.status(400).json({ 'message' : 'A valid leagueId must be provided.' });
+  if(leagueId <= 0) {
+    return res.status(400).json({'message': 'A valid leagueId must be provided.'});
   }
 
   logicalSeasonId = moment().get('month') < 8 ? moment().get('year') - 1 : moment().get('year');
@@ -348,16 +358,17 @@ apiRouteController.Trophies = function (req, res) {
       scrapeTrophies: scrapeTrophies
     },
     // On Complete
-    function(err, results){
-      if(err){
-        return res.status(500).json({ 'message' : 'Failed to retrieve the trophies for give leagueId.' });
+    function(err, results) {
+      if(err) {
+        return res.status(500).json({'message': 'Failed to retrieve the trophies for give leagueId.'});
       }
+
       return sendBackValidResponse(res, results.scrapeTrophies);
     }
   );
 };
 
-apiRouteController.TrophyHistory = function (req, res) {
+apiRouteController.TrophyHistory = function(req, res) {
   leagueId = req.params.leagueId || -1;
   seasonId = req.params.seasonId || -1;
   weekId = req.params.weekId || -1;
@@ -370,8 +381,8 @@ apiRouteController.TrophyHistory = function (req, res) {
   teamId = parseInt(teamId, 0);
   trophyId = parseInt(trophyId, 0);
 
-  if(leagueId <= 0 || trophyId <= 0){
-    return res.status(400).json({ 'message' : 'A valid leagueId/trophyId must be provided.' });
+  if(leagueId <= 0 || trophyId <= 0) {
+    return res.status(400).json({'message': 'A valid leagueId/trophyId must be provided.'});
   }
 
   logicalSeasonId = moment().get('month') < 8 ? moment().get('year') - 1 : moment().get('year');
@@ -383,16 +394,17 @@ apiRouteController.TrophyHistory = function (req, res) {
       scrapeTrophyHistory: scrapeTrophyHistory
     },
     // On Complete
-    function(err, results){
-      if(err){
-        return res.status(500).json({ 'message' : 'Failed to retrieve the trophies for give leagueId.' });
+    function(err, results) {
+      if(err) {
+        return res.status(500).json({'message': 'Failed to retrieve the trophies for give leagueId.'});
       }
+
       return sendBackValidResponse(res, results.scrapeTrophyHistory);
     }
   );
 };
 
-apiRouteController.PlayerNews = function (req, res) {
+apiRouteController.PlayerNews = function(req, res) {
   leagueId = req.params.leagueId || -1;
   seasonId = req.params.seasonId || -1;
   playerId = req.params.playerId || -1;
@@ -401,79 +413,119 @@ apiRouteController.PlayerNews = function (req, res) {
   seasonId = parseInt(seasonId, 0);
   playerId = parseInt(playerId, 0);
 
-  if(leagueId <= 0 || seasonId <= 0 || playerId <= 0){
-    return res.status(400).json({ 'message' : 'A valid leagueId/seasonId/playerId must be provided.' });
+  if(leagueId <= 0 || seasonId <= 0 || playerId <= 0) {
+    return res.status(400).json({'message': 'A valid leagueId/seasonId/playerId must be provided.'});
   }
 
   async.series(
     {
       espnAuth: authenticateEspnCredentials,
-      scrapePlayerNews: function(callback){
+      scrapePlayerNews: function(callback) {
         return scrapePlayerNews(leagueId, seasonId, playerId, callback);
       }
     },
     // On Complete
-    function(err, results){
-      if(err){
-        return res.status(500).json({ 'message' : 'Failed to retrieve player news for given playerId.' });
+    function(err, results) {
+      if(err) {
+        return res.status(500).json({'message': 'Failed to retrieve player news for given playerId.'});
       }
+
       return sendBackValidResponse(res, results.scrapePlayerNews);
     }
   );
 };
 
-var authenticateEspnCredentials = function(callback){
+var authenticateEspnCredentials = function(callback) {
   var staleAuthTimeInMs = 1 * 60 * 60 * 1000;
-  if(moment().diff(lastAuthDate) <= staleAuthTimeInMs){
-    return callback(null, {login:true});
+
+  if(moment().diff(lastAuthDate) <= staleAuthTimeInMs) {
+    return callback(null, {login: true});
   }
 
   console.log('Authentication expired. Need to re-authenticate.'.yellow);
 
-  // language=en&affiliateName=espn&appRedirect=http%3A%2F%2Fespn.go.com%2F&parentLocation=http%3A%2F%2Fespn.go.com%2F&registrationFormId=espn
-  var authOptions = {
-    username: options.access.username,
-    password: options.access.password,
-    language:'en',
-    affiliateName:'espn',
-    appRedirect:'http://espn.go.com',
-    parentLocation:'http://espn.go.com',
-    registrationFormId:'espn'
-  };
   var reqOptions = {
-    url:'https://r.espn.go.com/members/util/loginUser',
-    form: authOptions
+    // url: 'https://r.espn.go.com/members/util/loginUser',
+    url: 'https://registerdisney.go.com/jgc/v2/client/ESPN-FANTASYLM-PROD/guest/login?langPref=en-US'
   };
   console.log('Attempting to authenticate ESPN credentials...'.grey);
-  request.post(reqOptions, function(err, result, body){
-    var loginResult = JSON.parse(body);
-    if(err){
-      console.log('Failed to authenticate.'.red);
-      callback(err, null);
-      return;
+
+  async.series(
+    {
+      loginOptions: function(cb) {
+        var newOpts = {
+          method: 'OPTIONS',
+          uri: reqOptions.url
+        };
+        request(newOpts, function(err, result, body) {
+          if(err) {
+            console.log('Failed to authenticate.'.red);
+            cb(err, null);
+
+            return;
+          }
+          else if(result.statusCode !== 200) {
+            console.log('Failed authentication with given credentials.'.red);
+            console.log(body.red);
+            cb(body, null);
+
+            return;
+          }
+
+          cb();
+
+          return;
+        });
+      },
+      loginPost: function(cb) {
+        var authOptions = {
+          loginValue: options.access.username,
+          password: options.access.password
+        };
+        var newOpts = {
+          uri: reqOptions.url,
+          json: authOptions
+        }
+        request.post(newOpts, function(err, result, body) {
+          if(err) {
+            console.log('Failed to authenticate.'.red);
+            cb(err, null);
+
+            return;
+          }
+          else if(result.statusCode !== 200) {
+            console.log('Failed authentication with given credentials.'.red);
+            // console.log(body.red);
+            cb(body, null);
+
+            return;
+          }
+
+          console.log('Passed authentication. Successfully logged in as '.green + (options.access.username).green);
+          lastAuthDate = moment();
+          cb();
+
+          return;
+        });
+      }
+    },
+    // On Complete
+    function(err, results) {
+      callback(err, results);
     }
-    else if(loginResult.login === 'false'){
-      console.log('Failed authentication with given credentials.'.red);
-      console.log(body.red);
-      callback(body, null);
-      return;
-    }
-    console.log('Passed authentication.'.green);
-    lastAuthDate = moment();
-    callback(null, body);
-    return;
-  });
+  );
 };
 
-var scrapeMembers = function(callback){
+var scrapeMembers = function(callback) {
   var reqOpt = {
     url: 'http://games.espn.go.com/ffl/leaguesetup/ownerinfo?leagueId=' + leagueId + '&seasonId=' + seasonId
   };
 
-  request.get(reqOpt, function(err, result, body){
-    if(err){
+  request.get(reqOpt, function(err, result, body) {
+    if(err) {
       console.log('Failed to retrieve given league and season.'.red);
       callback(err, null);
+
       return;
     }
 
@@ -485,18 +537,22 @@ var scrapeMembers = function(callback){
     var currentSeasonId = null;
 
     var seasonOpts = $('#seasonHistoryMenu option');
-    if(seasonOpts.length <= 0){
+
+    if(seasonOpts.length <= 0) {
       console.log('Failed to retrieve seasons information.'.red);
       callback(1, null);
+
       return;
     }
 
-    _(seasonOpts).each(function(html){
+    _(seasonOpts).each(function(html) {
       var year = $(html).val();
-      if(parseInt(year)){
+
+      if(parseInt(year)) {
         year = parseInt(year);
         seasons.push(year);
-        if($(html).attr('selected')){
+
+        if($(html).attr('selected')) {
           currentSeasonId = year;
         }
       }
@@ -505,18 +561,20 @@ var scrapeMembers = function(callback){
     seasons = _(seasons).sort();
 
     var teamRows = $('.ownerRow[id*="-0"]');
-    if(teamRows.length <= 0){
+
+    if(teamRows.length <= 0) {
       console.log('Failed to retrieve team information.'.red);
       callback(1, null);
+
       return;
     }
 
     var teams = [];
-    _(teamRows).each(function(html){
+    _(teamRows).each(function(html) {
       var link = $(html).find('td').eq(2).find('a').attr('href');
       var teamId = _.str.trim(link.split('&')[1].split('=')[1]);
       var teamNameAbbr = _.str.trim($(html).find('td').eq(1).text());
-      var teamName = _.str.trim($(html).find('td.teamName a').text()).replace('  ',' ');
+      var teamName = _.str.trim($(html).find('td.teamName a').text()).replace('  ', ' ');
       var ownerName = _.str.titleize(_.str.trim($(html).find('td').eq(4).find('a').text()));
       var firstName = ownerName.split(' ')[0];
       var lastName = ownerName.split(' ')[1];
@@ -527,7 +585,7 @@ var scrapeMembers = function(callback){
         espnUserId: parseInt(espnUserId, 0),
         division: ownerDivision,
         team: {
-          id: parseInt(teamId,0),
+          id: parseInt(teamId, 0),
           name: teamName,
           abbr: teamNameAbbr
         },
@@ -552,23 +610,29 @@ var scrapeMembers = function(callback){
     };
 
     callback(null, data);
+
     return;
   });
 };
 
-var scrapeLeagueInfo = function(req, callback){
+var scrapeLeagueInfo = function(req, callback) {
   var reqOpt = {
     url: 'http://games.espn.go.com/ffl/leaguesetup/ownerinfo?leagueId=' + req.params.leagueId + (req.params.seasonId > 0 ? '&seasonId=' + req.params.seasonId : '')
   };
 
-  request.get(reqOpt, function(err, result, body){
-    if(err){
+  console.log(JSON.stringify(reqOpt, null, 2));
+
+  request.get(reqOpt, function(err, result, body) {
+    if(err) {
       console.log('Failed to retrieve given league and season.'.red);
       callback(err, null);
+
       return;
     }
 
     $ = cheerio.load(body);
+
+    console.log(body);
 
     var leagueName = $('.nav-main-breadcrumbs a').eq(2).text();
 
@@ -576,18 +640,22 @@ var scrapeLeagueInfo = function(req, callback){
     var currentSeasonId = null;
 
     var seasonOpts = $('#seasonHistoryMenu option');
-    if(seasonOpts.length <= 0){
+
+    if(seasonOpts.length <= 0) {
       console.log('Failed to retrieve seasons information.'.red);
       callback(1, null);
+
       return;
     }
 
-    _(seasonOpts).each(function(html){
+    _(seasonOpts).each(function(html) {
       var year = $(html).val();
-      if(parseInt(year)){
+
+      if(parseInt(year)) {
         year = parseInt(year);
         seasons.push(year);
-        if($(html).attr('selected')){
+
+        if($(html).attr('selected')) {
           currentSeasonId = year;
         }
       }
@@ -608,19 +676,21 @@ var scrapeLeagueInfo = function(req, callback){
     };
 
     callback(null, data);
+
     return;
   });
 };
 
-var scrapeTransactionCounter = function(callback){
+var scrapeTransactionCounter = function(callback) {
   var reqOpt = {
     url: 'http://games.espn.go.com/ffl/tools/transactioncounter?leagueId=' + leagueId + '&seasonId=' + seasonId
   };
 
-  request.get(reqOpt, function(err, result, body){
-    if(err){
+  request.get(reqOpt, function(err, result, body) {
+    if(err) {
       console.log('Failed to retrieve given league and season.'.red);
       callback(err, null);
+
       return;
     }
 
@@ -628,35 +698,40 @@ var scrapeTransactionCounter = function(callback){
 
     $ = cheerio.load(html);
 
-
-    if(body.indexOf('TRANSACTION COUNTER') <= 0){
+    if(body.indexOf('TRANSACTION COUNTER') <= 0) {
       console.log('Failed to retrieve transaction counts. Could not find TRANSACTION COUNTER.'.red);
       callback(1, null);
+
       return;
     }
 
     var rows = $('tr[valign=middle]');
 
-    if(rows.length <= 0){
+    if(rows.length <= 0) {
       console.log('Failed to retrieve transaction counts. Could not find transactional rows.'.red);
       callback(1, null);
+
       return;
     }
 
     var currentSeasonId = null;
 
     var seasonOpts = $('#seasonHistoryMenu option');
-    if(seasonOpts.length <= 0){
+
+    if(seasonOpts.length <= 0) {
       console.log('Failed to retrieve transaction counts.'.red);
       callback(1, null);
+
       return;
     }
 
-    _(seasonOpts).each(function(html){
+    _(seasonOpts).each(function(html) {
       var year = $(html).val();
-      if(parseInt(year)){
+
+      if(parseInt(year)) {
         year = parseInt(year);
-        if($(html).attr('selected')){
+
+        if($(html).attr('selected')) {
           currentSeasonId = year;
         }
       }
@@ -675,7 +750,7 @@ var scrapeTransactionCounter = function(callback){
     ];
 
     var teams = [];
-    _(rows).each(function(row){
+    _(rows).each(function(row) {
       var link = $(row).find('td').eq(0).find('a');
       var title = $(link).attr('title');
       var parts = title.split('(');
@@ -686,9 +761,10 @@ var scrapeTransactionCounter = function(callback){
       var teamId = getTeamIdFromUrl($(link).attr('href'));
 
       var transactions = [];
-      for(var i = 1; i <= 8; i++){
+
+      for(var i = 1; i <= 8; i++) {
         var td = $(row).find('td').eq(i);
-        var feeBreakdown = _.extend(getFeeBreakDownFromStr($(td).text()), { key: trxTypeKeys[i-1] });
+        var feeBreakdown = _.extend(getFeeBreakDownFromStr($(td).text()), {key: trxTypeKeys[i - 1]});
         transactions.push(feeBreakdown);
       }
 
@@ -729,59 +805,69 @@ var scrapeTransactionCounter = function(callback){
     };
 
     callback(null, data);
+
     return;
   });
 };
 
-var scrapeFinalStandings = function(callback){
+var scrapeFinalStandings = function(callback) {
   var reqOpt = {
     url: 'http://games.espn.go.com/ffl/tools/finalstandings?leagueId=' + leagueId + '&seasonId=' + seasonId
   };
 
-  request.get(reqOpt, function(err, result, body){
-    if(err){
+  request.get(reqOpt, function(err, result, body) {
+    if(err) {
       console.log('Failed to retrieve given league and season.'.red);
       callback(err, null);
+
       return;
     }
 
     $ = cheerio.load(body);
 
     var seasonOpts = $('#seasonHistoryMenu option');
-    if(seasonOpts.length <= 0){
+
+    if(seasonOpts.length <= 0) {
       console.log('Failed to retrieve final standings. Season is not complete or valid.'.red);
       callback(1, null);
+
       return;
     }
 
-    _(seasonOpts).each(function(html){
+    _(seasonOpts).each(function(html) {
       var year = $(html).val();
-      if(parseInt(year, 0)){
+
+      if(parseInt(year, 0)) {
         year = parseInt(year);
-        if($(html).attr('selected')){
+
+        if($(html).attr('selected')) {
           currentSeasonId = year;
         }
       }
     });
 
     var table = $('#finalRankingsTable');
-    if(!table){
+
+    if(!table) {
       console.log('Failed to retrieve final standings. Season is not complete or valid.'.red);
       callback(1, null);
+
       return;
     }
 
     var rows = $('tr.sortableRow');
-    if(rows.length <= 0){
+
+    if(rows.length <= 0) {
       console.log('Failed to retrieve final standings. Could not find data columns.'.red);
       callback(1, null);
+
       return;
     }
 
     var standings = [];
 
-    _(rows).each(function(row){
-      var place = parseInt($(row).find('td').eq(0).text(),0);
+    _(rows).each(function(row) {
+      var place = parseInt($(row).find('td').eq(0).text(), 0);
       var teamLink = $(row).find('td').eq(1).find('a');
       var teamName = _.str.trim($(teamLink).text().replace('  ', ' '));
       var teamId = getTeamIdFromUrl($(teamLink).attr('href'));
@@ -790,10 +876,10 @@ var scrapeFinalStandings = function(callback){
       var firstName = ownerName.split(' ')[0];
       var lastName = ownerName.split(' ')[1];
       var overallRecord = getOverallRecord($(row).find('td').eq(4).text());
-      var pointsFor = parseFloat($(row).find('td').eq(5).text(),2);
-      var pointsAgainst = parseFloat($(row).find('td').eq(6).text(),2);
-      var pointsForAvg = parseFloat($(row).find('td').eq(7).text(),2);
-      var pointsAgainstAvg = parseFloat($(row).find('td').eq(8).text(),2);
+      var pointsFor = parseFloat($(row).find('td').eq(5).text(), 2);
+      var pointsAgainst = parseFloat($(row).find('td').eq(6).text(), 2);
+      var pointsForAvg = parseFloat($(row).find('td').eq(7).text(), 2);
+      var pointsAgainstAvg = parseFloat($(row).find('td').eq(8).text(), 2);
       standings.push({
         id: teamId,
         place: place,
@@ -831,42 +917,47 @@ var scrapeFinalStandings = function(callback){
     };
 
     callback(null, data);
+
     return;
   });
 };
 
-var scrapeLeagueSettings = function(callback){
+var scrapeLeagueSettings = function(callback) {
   var reqOpt = {
     url: 'http://games.espn.go.com/ffl/leaguesetup/settings?leagueId=' + leagueId + '&seasonId=' + seasonId
   };
 
-  request.get(reqOpt, function(err, result, body){
-    if(err){
+  request.get(reqOpt, function(err, result, body) {
+    if(err) {
       console.log('Failed to retrieve given league and season.'.red);
       callback(err, null);
+
       return;
     }
 
     $ = cheerio.load(body);
 
     var basicTable = $('#basicSettingsTable');
-    if(!basicTable){
+
+    if(!basicTable) {
       console.log('Failed to retrieve league settings. Could not find basic settings.'.red);
       callback(1, null);
+
       return;
     }
 
     var rows = $(basicTable).find('tr');
     rows = _(rows).rest(1);
 
-    if(rows.length <= 0){
+    if(rows.length <= 0) {
       console.log('Failed to retrieve league settings. Could not find basic settings.'.red);
       callback(1, null);
+
       return;
     }
 
     var basicSettings = [];
-    _(rows).each(function(row){
+    _(rows).each(function(row) {
       var label = $(row).find('td').eq(0).find('label');
       var text = $(label).text();
       var key = _.str.classify(text);
@@ -874,7 +965,7 @@ var scrapeLeagueSettings = function(callback){
       basicSettings.push({
         key: key,
         name: text,
-        value: isNaN(value) ? value : parseInt(value,0)
+        value: isNaN(value) ? value : parseInt(value, 0)
       });
     });
 
@@ -884,19 +975,20 @@ var scrapeLeagueSettings = function(callback){
     var dataSummary = $(outerRosterTable).find('td.dataSummary');
     var ps = $(dataSummary).find('p');
 
-    _(ps).each(function(p){
+    _(ps).each(function(p) {
       var parts = $(p).text().split(': ');
       var text = parts[0];
       var key = _.str.classify(text);
       var value = null;
       var irMax = 0;
-      if(parts[1].indexOf('IR)') > -1){
+
+      if(parts[1].indexOf('IR)') > -1) {
         var sparts = parts[1].split(' (');
-        value = parseInt(sparts[0],0) || 0;
-        irMax = parseInt(sparts[1].split(' '),0) || 0;
+        value = parseInt(sparts[0], 0) || 0;
+        irMax = parseInt(sparts[1].split(' '), 0) || 0;
       }
-      else{
-        value = parseInt(parts[1],0) || 0;
+      else {
+        value = parseInt(parts[1], 0) || 0;
       }
 
       rosterSettings.push({
@@ -905,7 +997,7 @@ var scrapeLeagueSettings = function(callback){
         value: value
       });
 
-      if(irMax > 0){
+      if(irMax > 0) {
         rosterSettings.push({
           key: 'MaxPlayersOnIr',
           name: 'Max Players On IR',
@@ -918,12 +1010,12 @@ var scrapeLeagueSettings = function(callback){
     rows = $(rosterTable).find('tr');
     rows = _(rows).rest(1);
 
-    _(rows).each(function(row){
+    _(rows).each(function(row) {
       var parts = $(row).find('td').eq(0).text().split(' (');
       var positionName = parts[0];
       var positionAbbr = parts[1].split(')')[0];
-      var startMax = parseInt($(row).find('td').eq('1').text(),0) || 99;
-      var rosterMax = parseInt($(row).find('td').eq('2').text(),0) || 99;
+      var startMax = parseInt($(row).find('td').eq('1').text(), 0) || 99;
+      var rosterMax = parseInt($(row).find('td').eq('2').text(), 0) || 99;
 
       rosterSettings.push({
         key: positionAbbr,
@@ -938,17 +1030,17 @@ var scrapeLeagueSettings = function(callback){
     rows = $(scoringTable).children('tr');
     rows = _(rows).rest(1);
 
-    _(rows).each(function(row){
+    _(rows).each(function(row) {
       var categoryText = $(row).find('td').eq(0).text();
       var categoryKey = _.str.classify(categoryText);
       var statRows = $(row).find('td').eq(1).find('table').eq(0).find('tr');
       var categoryStats = [];
-      _(statRows).each(function(srow){
+      _(statRows).each(function(srow) {
         var parts = $(srow).find('td').eq(0).text().split(' (');
         var statName = parts[0];
         var statKey = _.str.classify(statName);
         var statAbbrev = parts[1].split(')')[0];
-        var statPoints = parseFloat($(srow).find('td').eq(1).text(),2) || 0;
+        var statPoints = parseFloat($(srow).find('td').eq(1).text(), 2) || 0;
 
         categoryStats.push({
           key: statKey,
@@ -959,12 +1051,12 @@ var scrapeLeagueSettings = function(callback){
 
         var isTwoColumn = $(srow).find('td').length === 5;
 
-        if(isTwoColumn){
+        if(isTwoColumn) {
           parts = $(srow).find('td').eq(3).text().split(' (');
           statName = parts[0];
           statKey = _.str.classify(statName);
           statAbbrev = parts[1].split(')')[0];
-          statPoints = parseFloat($(srow).find('td').eq(4).text(),2) || 0;
+          statPoints = parseFloat($(srow).find('td').eq(4).text(), 2) || 0;
 
           categoryStats.push({
             key: statKey,
@@ -987,7 +1079,7 @@ var scrapeLeagueSettings = function(callback){
     rows = $(playerRulesTable).find('tr');
     rows = _(rows).rest(1);
 
-    _(rows).each(function(row){
+    _(rows).each(function(row) {
       var label = $(row).find('td').eq(0).find('label');
       var text = $(label).text();
       var key = _.str.classify(text);
@@ -995,7 +1087,7 @@ var scrapeLeagueSettings = function(callback){
       playerRuleSettings.push({
         key: key,
         name: text,
-        value: isNaN(value) ? value : parseInt(value,0)
+        value: isNaN(value) ? value : parseInt(value, 0)
       });
     });
 
@@ -1004,7 +1096,7 @@ var scrapeLeagueSettings = function(callback){
     rows = $(acqAndWaiverTable).find('tr');
     rows = _(rows).rest(1);
 
-    _(rows).each(function(row){
+    _(rows).each(function(row) {
       var label = $(row).find('td').eq(0).find('label');
       var text = $(label).text();
       var key = _.str.classify(text);
@@ -1012,7 +1104,7 @@ var scrapeLeagueSettings = function(callback){
       acqAndWaiverSettings.push({
         key: key,
         name: text,
-        value: isNaN(value) ? value : parseInt(value,0)
+        value: isNaN(value) ? value : parseInt(value, 0)
       });
     });
 
@@ -1021,7 +1113,7 @@ var scrapeLeagueSettings = function(callback){
     rows = $(tradeTable).find('tr');
     rows = _(rows).rest(1);
 
-    _(rows).each(function(row){
+    _(rows).each(function(row) {
       var label = $(row).find('td').eq(0).find('label');
       var text = $(label).text();
       var key = _.str.classify(text);
@@ -1029,7 +1121,7 @@ var scrapeLeagueSettings = function(callback){
       tradeSettings.push({
         key: key,
         name: text,
-        value: isNaN(value) ? value : parseInt(value,0)
+        value: isNaN(value) ? value : parseInt(value, 0)
       });
     });
 
@@ -1038,7 +1130,7 @@ var scrapeLeagueSettings = function(callback){
     rows = $(keeperTable).find('tr');
     rows = _(rows).rest(1);
 
-    _(rows).each(function(row){
+    _(rows).each(function(row) {
       var label = $(row).find('td').eq(0).find('label');
       var text = $(label).text();
       var key = _.str.classify(text);
@@ -1046,7 +1138,7 @@ var scrapeLeagueSettings = function(callback){
       keeperSettings.push({
         key: key,
         name: text,
-        value: isNaN(value) ? value : parseInt(value,0)
+        value: isNaN(value) ? value : parseInt(value, 0)
       });
     });
 
@@ -1055,7 +1147,7 @@ var scrapeLeagueSettings = function(callback){
     rows = $(regularSeasonTable).find('tr');
     rows = _(rows).rest(1);
 
-    _(rows).each(function(row){
+    _(rows).each(function(row) {
       var label = $(row).find('td').eq(0).find('label');
       var text = $(label).text();
       var key = _.str.classify(text);
@@ -1063,7 +1155,7 @@ var scrapeLeagueSettings = function(callback){
       regularSeasonSettings.push({
         key: key,
         name: text,
-        value: isNaN(value) ? value : parseInt(value,0)
+        value: isNaN(value) ? value : parseInt(value, 0)
       });
     });
 
@@ -1072,7 +1164,7 @@ var scrapeLeagueSettings = function(callback){
     rows = $(playoffTable).find('tr');
     rows = _(rows).rest(1);
 
-    _(rows).each(function(row){
+    _(rows).each(function(row) {
       var label = $(row).find('td').eq(0).find('label');
       var text = $(label).text();
       var key = _.str.classify(text);
@@ -1080,18 +1172,18 @@ var scrapeLeagueSettings = function(callback){
       playoffSettings.push({
         key: key,
         name: text,
-        value: isNaN(value) ? value : parseInt(value,0)
+        value: isNaN(value) ? value : parseInt(value, 0)
       });
     });
 
     var draftSettings = [];
     var draftTable = $('div[name="draft"]').find('table#draftSettingsTable').eq(0);
-    rows = $(draftTable).find('tr').filter(function(i, el){
+    rows = $(draftTable).find('tr').filter(function(i, el) {
       return !!!$(this).attr('style');
     });
     rows = _(rows).rest(1);
 
-    _(rows).each(function(row){
+    _(rows).each(function(row) {
       var label = $(row).find('td').eq(0).find('label');
       var text = $(label).text();
       var key = _.str.classify(text);
@@ -1099,7 +1191,7 @@ var scrapeLeagueSettings = function(callback){
       draftSettings.push({
         key: key,
         name: text,
-        value: isNaN(value) ? value : parseInt(value,0)
+        value: isNaN(value) ? value : parseInt(value, 0)
       });
     });
 
@@ -1127,62 +1219,68 @@ var scrapeLeagueSettings = function(callback){
     };
 
     callback(null, data);
+
     return;
   });
 };
 
-var scrapeWeekScores = function(callback){
+var scrapeWeekScores = function(callback) {
   var reqOpt = {
     url: 'http://games.espn.go.com/ffl/scoreboard?leagueId=' + leagueId + '&seasonId=' + seasonId + '&scoringPeriodId=' + weekId
   };
 
-  request.get(reqOpt, function(err, result, body){
-    if(err){
+  request.get(reqOpt, function(err, result, body) {
+    if(err) {
       console.log('Failed to retrieve given league and season.'.red);
       callback(err, null);
+
       return;
     }
 
     $ = cheerio.load(body);
 
     var htmlMatchups = $('#scoreboardMatchups').find('.matchup');
-    if(!htmlMatchups || htmlMatchups.length === 0){
+
+    if(!htmlMatchups || htmlMatchups.length === 0) {
       console.log('Failed to retrieve week\'s scores. League/season/week combination may not be complete or valid.'.red);
       callback(1, null);
+
       return;
     }
 
     var timestamp = moment().utc().format();
     var scores = [];
     var winnersAreSet = $(htmlMatchups).find('.winning').length > 0;
-    _(htmlMatchups).each(function(matchup, index){
+    _(htmlMatchups).each(function(matchup, index) {
       var rows = $(matchup).find('tr');
-      if(rows.length <= 0){
+
+      if(rows.length <= 0) {
         console.log('Failed to retrieve week\'s scores. Could not find matchup rows.'.red);
         callback(1, null);
+
         return;
       }
 
       var lastRecordedScore = 0;
       var isWinnerDecided = $(matchup).find('.winning').length > 0;
-      _(rows).each(function(row,rindex){
+      _(rows).each(function(row, rindex) {
         if(rindex != 2) {
           var teamLink = $(row).find('.team .name a');
           var teamId = getTeamIdFromUrl($(teamLink).attr('href'));
           var teamName = $(teamLink).attr('title').split(' (')[0].replace('  ', ' ');
           var teamAbbr = _.str.trim($(row).find('.team .name .abbrev').text(), ['(', ')', ' ']);
           var ownerName = _.str.titleize($(row).find('.team .owners a').eq(0).text());
-          var score = parseFloat($(row).find('.score').text(),2);
+          var score = parseFloat($(row).find('.score').text(), 2);
           var outcome = 'undetermined';
           var isWinner = $(row).find('.score').hasClass('winning');
 
-          if(isWinnerDecided && !isWinner){
+          if(isWinnerDecided && !isWinner) {
             outcome = 'loss';
           }
-          else if (isWinnerDecided && isWinner) {
+          else if(isWinnerDecided && isWinner) {
             outcome = 'win';
           }
-          else if (winnersAreSet){
+          else if(winnersAreSet) {
             outcome = 'tie';
           }
 
@@ -1221,43 +1319,47 @@ var scrapeWeekScores = function(callback){
     };
 
     callback(null, data);
+
     return;
   });
 };
 
-var scrapeTeamSchedule = function(callback){
+var scrapeTeamSchedule = function(callback) {
   var reqOpt = {
     url: 'http://games.espn.go.com/ffl/schedule?leagueId=' + leagueId + '&seasonId=' + seasonId + '&teamId=' + teamId
   };
 
-  request.get(reqOpt, function(err, result, body){
-    if(err){
+  request.get(reqOpt, function(err, result, body) {
+    if(err) {
       console.log('Failed to retrieve given league, season, and team.'.red);
       callback(err, null);
+
       return;
     }
 
     $ = cheerio.load(body);
 
     var rows = _($('tr.tableSubHead').eq(0).siblings()).rest(1);
-    if(!rows || rows.length === 0){
+
+    if(!rows || rows.length === 0) {
       console.log('Failed to retrieve team\'s schedule. League/season/team combination may not be valid.'.red);
       callback(1, null);
+
       return;
     }
 
     var timestamp = moment().utc().format();
     var outcomes = [];
 
-    _(rows).each(function(row, index){
-      var record = {wins:null,losses:null,ties:null}; //Calculate it later if season is not concluded
-      if(isSeasonConcluded){
+    _(rows).each(function(row, index) {
+      var record = {wins: null, losses: null, ties: null}; //Calculate it later if season is not concluded
+      if(isSeasonConcluded) {
         record = getOverallRecord($(row).find('td').eq(1).text());
       }
       var result = getGameResults(_.str.trim($(row).find('td').eq(isSeasonConcluded ? 2 : 1).text()));
       var isHomeGame = _.str.trim($(row).find('td').eq(isSeasonConcluded ? 3 : 2).text()).toLowerCase() === '';
       var opponentLink = $(row).find('td').eq(isSeasonConcluded ? 4 : 3).find('a');
-      var ownerName = _.str.titleize(_.str.trim(($(opponentLink).attr('title')+'').split('(')[1], [')',' ']));
+      var ownerName = _.str.titleize(_.str.trim(($(opponentLink).attr('title') + '').split('(')[1], [')', ' ']));
 
       var opponent = {
         id: getTeamIdFromUrl($(opponentLink).attr('href')),
@@ -1270,7 +1372,7 @@ var scrapeTeamSchedule = function(callback){
 
       outcomes.push({
         week: {
-          id: index+1
+          id: index + 1
         },
         isHomeGame: isHomeGame,
         recordSnapshot: record,
@@ -1279,7 +1381,7 @@ var scrapeTeamSchedule = function(callback){
       });
     });
 
-    if(!isSeasonConcluded){
+    if(!isSeasonConcluded) {
       outcomes = calculateRunningRecord(outcomes);
     }
 
@@ -1299,19 +1401,21 @@ var scrapeTeamSchedule = function(callback){
     };
 
     callback(null, data);
+
     return;
   });
 };
 
-var scrapeTeamRoster = function(callback){
+var scrapeTeamRoster = function(callback) {
   var reqOpt = {
     url: 'http://games.espn.go.com/ffl/clubhouse?leagueId=' + leagueId + '&seasonId=' + seasonId + '&teamId=' + teamId
   };
 
-  request.get(reqOpt, function(err, result, body){
-    if(err){
+  request.get(reqOpt, function(err, result, body) {
+    if(err) {
       console.log('Failed to retrieve given league, season, and team.'.red);
       callback(err, null);
+
       return;
     }
 
@@ -1319,9 +1423,10 @@ var scrapeTeamRoster = function(callback){
 
     var benchHeaderRow = $('.playertableSectionHeaderFirst').eq(1).parent();
 
-    if(!benchHeaderRow){
+    if(!benchHeaderRow) {
       console.log('Failed to retrieve team\'s schedule. League/season/team combination may not be valid.'.red);
       callback(1, null);
+
       return;
     }
 
@@ -1332,7 +1437,7 @@ var scrapeTeamRoster = function(callback){
     var starters = [];
     var bench = [];
 
-    function parsePlayerInfo(row){
+    function parsePlayerInfo(row) {
       var td = $(row).find('td.playertablePlayerName');
       var injuryStatus = $(td).find('span[title]');
       var playerId = $(td).attr('id').split('_')[1];
@@ -1341,15 +1446,15 @@ var scrapeTeamRoster = function(callback){
       var isPastRoster = !$(td).find('a').length;
       var hasNews = hasVideo = false;
 
-      if($(td).find('img').length){
+      if($(td).find('img').length) {
         hasNews = $(td).find('img').attr('src').toLowerCase().indexOf('news_breaking') > -1;
         hasVideo = $(td).find('img').attr('src').toLowerCase().indexOf('video_breaking') > -1;
       }
 
-      if(isPastRoster){
+      if(isPastRoster) {
         txt = _.str.trim($(td).text().split(',')[0]);
       }
-      else{
+      else {
         txt = _.str.trim(playerLink.text(), [' ', ',']);
       }
 
@@ -1357,7 +1462,8 @@ var scrapeTeamRoster = function(callback){
       var playerName = _.str.trim(txt.replace('D/ST', '').replace('*', ''));
 
       var team, position, injury;
-      if(injuryStatus.length){
+
+      if(injuryStatus.length) {
         injury = {
           key: $(injuryStatus).text(),
           status: $(injuryStatus).attr('title')
@@ -1365,19 +1471,19 @@ var scrapeTeamRoster = function(callback){
         $(injuryStatus).remove();
       }
 
-      if(isTeamDefense){
+      if(isTeamDefense) {
         team = getTeamInfoFromShortName(playerName).key;
         position = 'D/ST';
       }
-      else{
+      else {
         $(td).find('a').remove();
         txt = _.str.trim($(td).text().replace(/\s+/g, " "), [' ', ',', '*']);
 
-        if(isPastRoster){
+        if(isPastRoster) {
           team = _.str.trim(txt.split(' ')[2]).toUpperCase();
           position = _(txt.split(' ')).last();
         }
-        else{
+        else {
           team = _.str.trim(txt.split(' ')[0]).toUpperCase();
           position = _(txt.split(' ')).rest(1).join('');
         }
@@ -1399,8 +1505,8 @@ var scrapeTeamRoster = function(callback){
       var tdIndex = isMyTeam ? 4 : 3;
 
       var strMatchup = _.str.trim($(row).find('td').eq(tdIndex).text());
-      var strMatchupTime = _.str.trim($(row).find('td').eq(tdIndex+1).text());
-      var matchupGameId = _.str.trim(($(row).find('td').eq(tdIndex+1).find('a').attr('href') || '').split('gameId=')[1]);
+      var strMatchupTime = _.str.trim($(row).find('td').eq(tdIndex + 1).text());
+      var matchupGameId = _.str.trim(($(row).find('td').eq(tdIndex + 1).find('a').attr('href') || '').split('gameId=')[1]);
 
       var player = {
         id: parseInt(playerId, 0),
@@ -1413,7 +1519,7 @@ var scrapeTeamRoster = function(callback){
         hasVideoNews: hasVideo
       };
 
-      if(matchupGameId){
+      if(matchupGameId) {
         player.matchup = {
           id: parseInt(matchupGameId, 0) || -1,
           isHome: strMatchup.indexOf('@') === -1,
@@ -1423,9 +1529,10 @@ var scrapeTeamRoster = function(callback){
           status: strMatchupTime
         };
 
-        if(player.matchup.status.indexOf(' ') > -1 && player.matchup.status.indexOf(':') > -1){
+        if(player.matchup.status.indexOf(' ') > -1 && player.matchup.status.indexOf(':') > -1) {
           var date = parseDateFromString(player.matchup.status);
-          if(date){
+
+          if(date) {
             player.matchup.gameDate = date;
             player.matchup.gameDay = moment(date).format('ddd');
             player.matchup.gameTime = moment(date).format('h:mma');
@@ -1433,18 +1540,18 @@ var scrapeTeamRoster = function(callback){
         }
       }
 
-      if(injury){
+      if(injury) {
         player.injury = injury;
       }
 
       return player;
     }
 
-    _(starterRows).each(function(row){
+    _(starterRows).each(function(row) {
       starters.push(parsePlayerInfo(row));
     });
 
-    _(benchRows).each(function(row){
+    _(benchRows).each(function(row) {
       bench.push(parsePlayerInfo(row));
     });
 
@@ -1483,48 +1590,52 @@ var scrapeTeamRoster = function(callback){
     data.roster = calculatePercentGameComplete(data.roster);
 
     callback(null, data);
+
     return;
   });
 };
 
-var scrapeDraftRecap = function(callback){
+var scrapeDraftRecap = function(callback) {
   var reqOpt = {
     url: 'http://games.espn.go.com/ffl/tools/draftrecap?leagueId=' + leagueId + '&seasonId=' + seasonId
   };
 
-  request.get(reqOpt, function(err, result, body){
-    if(err){
+  request.get(reqOpt, function(err, result, body) {
+    if(err) {
       console.log('Failed to retrieve given league and season.'.red);
       callback(err, null);
+
       return;
     }
 
     $ = cheerio.load(body);
 
     var rounds = $('tr.tableHead');
-    if(!rounds || rounds.length === 0){
+
+    if(!rounds || rounds.length === 0) {
       console.log('Failed to retrieve draft recap. League/season combination may not be valid.'.red);
       callback(1, null);
+
       return;
     }
 
     var timestamp = moment().utc().format();
     var draftRounds = [];
-    _(rounds).each(function(r, index){
+    _(rounds).each(function(r, index) {
       var draftPicks = [];
       var rows = $(r).siblings();
-      _(rows).each(function(row, jndex){
-        var pickNumber = parseInt(_.str.trim($(row).find('td').eq(0).text()),0);
+      _(rows).each(function(row, jndex) {
+        var pickNumber = parseInt(_.str.trim($(row).find('td').eq(0).text()), 0);
         var playerInfo = getPlayerInfo(_.str.trim($(row).find('td').eq(1).text()));
         var playerLink = $(row).find('td').eq(1).find('a');
         var teamLink = $(row).find('td').eq(2).find('a');
         var teamId = getTeamIdFromUrl($(teamLink).attr('href'));
         var ownerName = _.str.titleize(_.str.trim($(teamLink).attr('title').split('(')[1].split(')'))).split(',').join('');
 
-        var draftPick = {player:playerInfo};
+        var draftPick = {player: playerInfo};
 
-        if(playerLink){
-          draftPick.player.id = parseInt($(playerLink).attr('playerid'),0);
+        if(playerLink) {
+          draftPick.player.id = parseInt($(playerLink).attr('playerid'), 0);
         }
 
         _.extend(draftPick, {
@@ -1543,7 +1654,7 @@ var scrapeDraftRecap = function(callback){
       });
 
       var round = {
-        id: index+1,
+        id: index + 1,
         picks: draftPicks
       };
 
@@ -1563,78 +1674,88 @@ var scrapeDraftRecap = function(callback){
     };
 
     callback(null, data);
+
     return;
   });
 };
 
-var scrapeMatchup = function(callback){
+var scrapeMatchup = function(callback) {
   var reqOpt = {
     url: 'http://games.espn.go.com/ffl/boxscorequick?leagueId=' + leagueId + '&seasonId=' + seasonId + '&scoringPeriodId=' + weekId + '&teamId=' + teamId + '&view=scoringperiod'
   };
 
-  request.get(reqOpt, function(err, result, body){
-    if(err){
+  request.get(reqOpt, function(err, result, body) {
+    if(err) {
       console.log('Failed to retrieve given league and season.'.red);
       callback(err, null);
+
       return;
     }
 
     $ = cheerio.load(body);
 
     var playerTables = $('.playerTableTable');
-    if(!playerTables || playerTables.length === 0){
+
+    if(!playerTables || playerTables.length === 0) {
       console.log('Failed to retrieve matchup\'s scores. League/season/week/team combination may not be complete or valid.'.red);
       callback(1, null);
+
       return;
     }
 
     var timestamp = moment().utc().format();
-    var teams = [{ id: teamId, scores: { starters: 0, bench: 0 }, starters: [], bench: [] },{ id: null, scores: { starters: 0, bench: 0}, starters: [], bench: [] }];
+    var teams = [{id: teamId, scores: {starters: 0, bench: 0}, starters: [], bench: []}, {id: null, scores: {starters: 0, bench: 0}, starters: [], bench: []}];
 
     var teamInfo = $('#teamInfos').children('div').eq(1);
     var teamObj = $(teamInfo).children('div').children('div');
     var teamLink = $(teamObj).children('a');
-    if($(teamLink).length === 0){
+
+    if($(teamLink).length === 0) {
       var html = $(teamObj).html();
       html = _.str.strRight(html, 'LOGO.flashVars = "');
       html = _.str.strLeft(html, '"');
       var url = decodeURIComponent('/' + html);
-      var id = parseInt(getTeamIdFromUrl(url),0);
-      if(id !== teamId && id > 0){
+      var id = parseInt(getTeamIdFromUrl(url), 0);
+
+      if(id !== teamId && id > 0) {
         teams[1].id = id;
       }
     }
-    else{
-      var id = parseInt(getTeamIdFromUrl($(teamLink).attr('href')),0);
-      if(id !== teamId && id > 0){
+    else {
+      var id = parseInt(getTeamIdFromUrl($(teamLink).attr('href')), 0);
+
+      if(id !== teamId && id > 0) {
         teams[1].id = id;
       }
     }
 
     var isBenchAvailable = $(playerTables).length == 4;
-    _(playerTables).each(function(table, index){
+    _(playerTables).each(function(table, index) {
       var rows = $(table).find('tr');
-      if(rows.length <= 0){
+
+      if(rows.length <= 0) {
         console.log('Failed to retrieve player\'s scores. Could not find player rows.'.red);
         callback(1, null);
+
         return;
       }
 
       rows = _(rows).rest(isBenchAvailable && index % 2 == 1 ? 2 : 3);;
-      rows = _(rows).map(function(r){
-        if(isBenchAvailable){
+      rows = _(rows).map(function(r) {
+        if(isBenchAvailable) {
           $(r).find('td').eq(0).remove();
         }
+
         return r;
       });
 
       var teamIndex = (isBenchAvailable && index < 2) || (!isBenchAvailable && index == 0) ? 0 : 1
-      _(rows).each(function(row, jndex){
+      _(rows).each(function(row, jndex) {
         if($(row).find('td').eq(2).text() === '') return;
         var playerCell = $(row).find('td.playertablePlayerName');
         var playerInfo = getPlayerInfo($(playerCell).text());
         playerInfo.id = getPlayerId($(playerCell).attr('id'));
-        var scoredPoints = parseFloat(_.str.trim($(row).find('td.appliedPoints').text()),2);
+        var scoredPoints = parseFloat(_.str.trim($(row).find('td.appliedPoints').text()), 2);
         delete playerInfo.isKeeper;
         playerInfo.points = scoredPoints;
 
@@ -1643,29 +1764,29 @@ var scrapeMatchup = function(callback){
             id: playerInfo.id,
             firstName: playerInfo.firstName,
             lastName: playerInfo.lastName,
-            team : playerInfo.team,
+            team: playerInfo.team,
             position: playerInfo.position,
             points: playerInfo.points
           };
 
         var isStarters = !(isBenchAvailable && index % 2 == 1);
 
-        if(isStarters){
+        if(isStarters) {
           teams[teamIndex].starters.push(playerInfo);
         }
-        else{
+        else {
           teams[teamIndex].bench.push(playerInfo);
         }
       });
     });
 
-    _(teams).each(function(team, tindex){
-      team.scores.starters = _(team.starters).reduce(function(total, player){
+    _(teams).each(function(team, tindex) {
+      team.scores.starters = _(team.starters).reduce(function(total, player) {
         return total + (player.points || 0);
-      },0);
-      team.scores.bench = _(team.bench).reduce(function(total, player){
+      }, 0);
+      team.scores.bench = _(team.bench).reduce(function(total, player) {
         return total + (player.points || 0);
-      },0);
+      }, 0);
     }, teams);
 
     var data = {
@@ -1684,19 +1805,21 @@ var scrapeMatchup = function(callback){
     };
 
     callback(null, data);
+
     return;
   });
 };
 
-var scrapeTrophies = function(callback){
+var scrapeTrophies = function(callback) {
   var reqOpt = {
     url: 'http://games.espn.go.com/ffl/trophylist?leagueId=' + leagueId
   };
 
-  request.get(reqOpt, function(err, result, body){
-    if(err){
+  request.get(reqOpt, function(err, result, body) {
+    if(err) {
       console.log('Failed to retrieve given league.'.red);
       callback(err, null);
+
       return;
     }
 
@@ -1705,18 +1828,19 @@ var scrapeTrophies = function(callback){
     var trophyTable = $('.games-fullcol.games-fullcol-extramargin').find('table');
     var trophyRows = [];
 
-    if(trophyTable.length === 2){
+    if(trophyTable.length === 2) {
       trophyTable = $(trophyTable).last();
     }
 
-    if(trophyTable.length === 1){
+    if(trophyTable.length === 1) {
       trophyRows = $(trophyTable).find('tr');
       trophyRows = _.chain(trophyRows).initial().rest(); // Removes first and last rows
     }
 
-    if(!trophyRows || trophyRows.length === 0){
+    if(!trophyRows || trophyRows.length === 0) {
       console.log('Failed to retrieve trophy rows.'.red);
       callback(1, null);
+
       return;
     }
 
@@ -1724,9 +1848,9 @@ var scrapeTrophies = function(callback){
 
     var trophies = [];
 
-    _(trophyRows).each(function(tr){
-      _($(tr).find('td')).each(function(td){
-        var trophy = {image:{}};
+    _(trophyRows).each(function(tr) {
+      _($(tr).find('td')).each(function(td) {
+        var trophy = {image: {}};
         var img = $(td).find('img');
         trophy.image.url = img.attr('src');
         trophy.image.height = 90;
@@ -1757,19 +1881,21 @@ var scrapeTrophies = function(callback){
     };
 
     callback(null, data);
+
     return;
   });
 };
 
-var scrapeTrophyHistory = function(callback){
+var scrapeTrophyHistory = function(callback) {
   var reqOpt = {
     url: 'http://games.espn.go.com/ffl/trophyhistory?leagueId=' + leagueId + '&trophyId=' + trophyId
   };
 
-  request.get(reqOpt, function(err, result, body){
-    if(err){
+  request.get(reqOpt, function(err, result, body) {
+    if(err) {
       console.log('Failed to retrieve given league.'.red);
       callback(err, null);
+
       return;
     }
 
@@ -1777,9 +1903,10 @@ var scrapeTrophyHistory = function(callback){
 
     var awards = $('.games-alert-mod.alert-mod2.games-grey-alert');
 
-    if(!awards || awards.length === 0){
+    if(!awards || awards.length === 0) {
       console.log('Failed to retrieve trophy rows.'.red);
       callback(1, null);
+
       return;
     }
 
@@ -1789,7 +1916,7 @@ var scrapeTrophyHistory = function(callback){
 
     var monthShortNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
-    _(awards).each(function(award){
+    _(awards).each(function(award) {
       var trophy = {};
 
       trophy.awardedOn = moment($(award).children('b').text(), 'MMM DD, YYYY', 'en').utc().format();
@@ -1814,34 +1941,37 @@ var scrapeTrophyHistory = function(callback){
     };
 
     callback(null, data);
+
     return;
   });
 };
 
-var scrapePlayerNews = function(leagueId, seasonId, playerId, callback){
+var scrapePlayerNews = function(leagueId, seasonId, playerId, callback) {
   var reqOpt = {
     url: 'http://games.espn.go.com/ffl/format/playerpop/news?leagueId=' + leagueId + '&playerId=' + playerId + '&playerIdType=playerId&seasonId=' + seasonId + '&xhr=1'
   };
 
-  request.get(reqOpt, function(err, result, body){
-    if(err){
+  request.get(reqOpt, function(err, result, body) {
+    if(err) {
       console.log('Failed to retrieve given player\'s news.'.red);
       callback(err, null);
+
       return;
     }
 
     $ = cheerio.load(body);
 
-    if(!$('#pcNewsPlayerName').length || !$('.pni.pni-source-roto').length){
+    if(!$('#pcNewsPlayerName').length || !$('.pni.pni-source-roto').length) {
       console.log('Failed to retrieve player\'s news. League/season/playerId combination may not be valid.'.red);
       callback(1, null);
+
       return;
     }
 
     var rows = $('.pni.pni-source-roto');
 
     var newsItems = [];
-    _(rows).each(function(row){
+    _(rows).each(function(row) {
       var shortText = $(row).find('.pni-shorttext').text();
       $(row).find('.pni-longtext .pni-spinlabel').remove();
       var spinText = $(row).find('.pni-longtext').text();
@@ -1873,18 +2003,21 @@ var scrapePlayerNews = function(leagueId, seasonId, playerId, callback){
     };
 
     callback(null, data);
+
     return;
   });
 }
 
-var sendBackValidResponse = function(res, responeBody){
+var sendBackValidResponse = function(res, responeBody) {
   lastAuthDate = moment();
+
   return res.json(responeBody);
 };
 
-function getTeamIdFromUrl(urlStr){
+function getTeamIdFromUrl(urlStr) {
   if(!urlStr) return -1;
-  if(!_.str.startsWith(urlStr, 'http')){
+
+  if(!_.str.startsWith(urlStr, 'http')) {
     urlStr = 'http://www.google.com' + urlStr;
   }
 
@@ -1893,10 +2026,11 @@ function getTeamIdFromUrl(urlStr){
   return parseInt(uri.query.teamId, 0);
 }
 
-function getTrophyIdFromUrl(urlStr){
+function getTrophyIdFromUrl(urlStr) {
   // console.log(urlStr);
   if(!urlStr) return -1;
-  if(!_.str.startsWith(urlStr, 'http')){
+
+  if(!_.str.startsWith(urlStr, 'http')) {
     urlStr = 'http://www.google.com' + urlStr;
   }
 
@@ -1905,10 +2039,10 @@ function getTrophyIdFromUrl(urlStr){
   return parseInt(uri.query.trophyId, 0);
 }
 
-function getFeeBreakDownFromStr(str){
+function getFeeBreakDownFromStr(str) {
   var parts = str.split(' ');
-  var total = parseFloat(_.str.trim(parts[0], '$'),2);
-  var qty = parseInt(_.str.trim(parts[1], ['(',')',' ']),0);
+  var total = parseFloat(_.str.trim(parts[0], '$'), 2);
+  var qty = parseInt(_.str.trim(parts[1], ['(', ')', ' ']), 0);
 
   return {
     total: total,
@@ -1916,11 +2050,11 @@ function getFeeBreakDownFromStr(str){
   };
 }
 
-function getTrxTypes($){
+function getTrxTypes($) {
   var table = $('.tableBody')[1];
   var rows = _($(table).find('tr')).rest(2);
   var trxTypes = [];
-  _(rows).each(function(row){
+  _(rows).each(function(row) {
     var trxName = $(row).find('td').eq(0).text();
     var trxKey = _.str.classify(trxName);
     var trxCost = parseFloat($(row).find('td').eq(1).text().split('$')[1], 2);
@@ -1934,11 +2068,12 @@ function getTrxTypes($){
   return trxTypes;
 }
 
-function getOverallRecord(str){
+function getOverallRecord(str) {
   var parts = str.split('-');
-  var wins = parseInt(parts[0],0);
-  var losses = parseInt(parts[1],0);
-  var ties = parseInt(parts[2],0) || 0;
+  var wins = parseInt(parts[0], 0);
+  var losses = parseInt(parts[1], 0);
+  var ties = parseInt(parts[2], 0) || 0;
+
   return {
     wins: wins,
     losses: losses,
@@ -1946,10 +2081,10 @@ function getOverallRecord(str){
   };
 }
 
-function getGameResults(str){
+function getGameResults(str) {
   var parts = str.split(' ');
 
-  if(parts.length < 2){
+  if(parts.length < 2) {
     return {
       isWinner: false,
       outcome: 'undetermined',
@@ -1961,11 +2096,11 @@ function getGameResults(str){
   }
 
   var sparts = parts[1].split('-');
-  var score1 = parseFloat(sparts[0],2) || 0;
-  var score2 = parseFloat(sparts[1],2) || 0;
+  var score1 = parseFloat(sparts[0], 2) || 0;
+  var score2 = parseFloat(sparts[1], 2) || 0;
   var outcome = parts[0].toLowerCase() === 'w' ? 'win' : (parts[0].toLowerCase() === 'l' ? 'loss' : 'tie');
-  var max = [score1,score2].sort()[1];
-  var min = [score1,score2].sort()[0];
+  var max = [score1, score2].sort()[1];
+  var min = [score1, score2].sort()[0];
 
   return {
     isWinner: outcome === 'win',
@@ -1977,32 +2112,32 @@ function getGameResults(str){
   };
 }
 
-function calculateRunningRecord(outcomes){
-  _(outcomes).each(function(o,i){
-    if(o.result.outcome != 'undetermined'){
-      var wins = i === 0 ? 0 : outcomes[i-1].recordSnapshot.wins;
-      var losses = i === 0 ? 0 : outcomes[i-1].recordSnapshot.losses;
-      var ties = i === 0 ? 0 : outcomes[i-1].recordSnapshot.ties;
+function calculateRunningRecord(outcomes) {
+  _(outcomes).each(function(o, i) {
+    if(o.result.outcome != 'undetermined') {
+      var wins = i === 0 ? 0 : outcomes[i - 1].recordSnapshot.wins;
+      var losses = i === 0 ? 0 : outcomes[i - 1].recordSnapshot.losses;
+      var ties = i === 0 ? 0 : outcomes[i - 1].recordSnapshot.ties;
 
-      if(o.result.outcome === 'win'){
+      if(o.result.outcome === 'win') {
         o.recordSnapshot = {
-          wins: wins+1,
+          wins: wins + 1,
           losses: losses,
           ties: ties
         };
       }
-      else if(o.result.outcome === 'loss'){
+      else if(o.result.outcome === 'loss') {
         o.recordSnapshot = {
           wins: wins,
-          losses: losses+1,
+          losses: losses + 1,
           ties: ties
         };
       }
-      else{
+      else {
         o.recordSnapshot = {
           wins: wins,
           losses: losses,
-          ties: ties+1
+          ties: ties + 1
         };
       }
     }
@@ -2011,7 +2146,7 @@ function calculateRunningRecord(outcomes){
   return outcomes;
 }
 
-function getPlayerInfo(pstr){
+function getPlayerInfo(pstr) {
   var pi = {
     firstName: null,
     lastName: null,
@@ -2026,7 +2161,7 @@ function getPlayerInfo(pstr){
 
   var s = pstr.split('*').join('');
 
-  if(_.str.words(s).length < 4){
+  if(_.str.words(s).length < 4) {
     return pi;
   }
 
@@ -2042,7 +2177,7 @@ function getPlayerInfo(pstr){
   pi.position = position;
   pi.isKeeper = isKeeper;
 
-  if(lastName == 'D/ST'){
+  if(lastName == 'D/ST') {
     pi.firstName = null,
     pi.lastName = null
   }
@@ -2050,11 +2185,11 @@ function getPlayerInfo(pstr){
   return pi;
 }
 
-function getPlayerId(str){
-  return parseInt(str.split('_')[1],0);
+function getPlayerId(str) {
+  return parseInt(str.split('_')[1], 0);
 }
 
-function getTeamInfoFromShortName(shortName){
+function getTeamInfoFromShortName(shortName) {
   var teams = [
     {
       "id": "60026",
@@ -2223,24 +2358,24 @@ function getTeamInfoFromShortName(shortName){
     }
   ];
 
-  var found =  _(teams).find(function(t){
-    return t.name.toUpperCase() === (shortName||'').toUpperCase();
+  var found =  _(teams).find(function(t) {
+    return t.name.toUpperCase() === (shortName || '').toUpperCase();
   });
 
-  if(!found){
+  if(!found) {
     logger.error('Could not located a team with shortName: ' + shortName);
   }
 
   return found;
 }
 
-function parsePlayerFantasyPosition(actual, slotPosition){
+function parsePlayerFantasyPosition(actual, slotPosition) {
   var raw = actual || '';
   raw = raw.toLowerCase();
 
   if(!raw) return actual;
 
-  if(slotPosition && slotPosition.toLowerCase() !== 'bench'){
+  if(slotPosition && slotPosition.toLowerCase() !== 'bench') {
     return slotPosition.toUpperCase();
   }
 
@@ -2290,11 +2425,12 @@ function parsePlayerFantasyPosition(actual, slotPosition){
       return 'k'.toUpperCase();
     default:
       console.log(raw);
+
       return raw.toUpperCase();
   }
 }
 
-function parsePlayerFantasyPositionCategory(actual){
+function parsePlayerFantasyPositionCategory(actual) {
   var raw = actual || '';
   raw = raw.toLowerCase();
 
@@ -2342,24 +2478,27 @@ function parsePlayerFantasyPositionCategory(actual){
       return 'st'.toUpperCase();
     default:
       console.log(raw);
+
       return raw.toUpperCase();
   }
 }
 
-function calculatePercentGameComplete(roster){
+function calculatePercentGameComplete(roster) {
   if(!roster) return roster;
 
-  roster.starters = _(roster.starters).map(function(p){
-    if(p.matchup){
+  roster.starters = _(roster.starters).map(function(p) {
+    if(p.matchup) {
       p.matchup.percentComplete = parsePercentComplete(p.matchup.status);
     }
+
     return p;
   });
 
-  roster.bench = _(roster.bench).map(function(p){
-    if(p.matchup){
+  roster.bench = _(roster.bench).map(function(p) {
+    if(p.matchup) {
       p.matchup.percentComplete = parsePercentComplete(p.matchup.status);
     }
+
     return p;
   });
 
@@ -2367,7 +2506,7 @@ function calculatePercentGameComplete(roster){
   return roster;
 };
 
-function parsePercentComplete(status){
+function parsePercentComplete(status) {
   if(!status) return 0;
 
   if(status.toLowerCase().indexOf('half') > -1) return 50; // Halftime
@@ -2379,6 +2518,7 @@ function parsePercentComplete(status){
       return 100;
     case 2:
       if(status.toLowerCase().indexOf('f') > -1) return 100;
+
       return 0;
     case 3:
       var splits = status.split(' ');
@@ -2390,6 +2530,7 @@ function parsePercentComplete(status){
       var secs = parseInt(timeLeft.split(':')[1], 0);
 
       var qtr = 4;
+
       switch(qtrStr[0]){
         case '1':
           qtr = 1;
@@ -2408,9 +2549,9 @@ function parsePercentComplete(status){
           break;
       }
 
-      var maxTics = (4*15*60);
-      var nsecs = (15*60) - (mins*60) + secs;
-      var qsecs = ((qtr-1)*15*60);
+      var maxTics = (4 * 15 * 60);
+      var nsecs = (15 * 60) - (mins * 60) + secs;
+      var qsecs = ((qtr - 1) * 15 * 60);
       var totalTics = nsecs + qsecs;
 
       // console.log(nsecs);
@@ -2418,13 +2559,13 @@ function parsePercentComplete(status){
       // console.log(totalTics);
       // console.log(maxTics);
 
-      return parseInt(100*(totalTics/maxTics), 0);
+      return parseInt(100 * (totalTics / maxTics), 0);
     default:
       return 0;
   }
 };
 
-function getNearestDate(weekday){
+function getNearestDate(weekday) {
   if(!weekday || weekday.length !== 3) {
     return null;
   }
@@ -2443,12 +2584,13 @@ function getNearestDate(weekday){
 
   // console.log('gameDow', gameDow);
 
-  if(gameDow === -1){
+  if(gameDow === -1) {
     return null;
   }
 
   var tempDt = moment();
-  while(tempDt.weekday() !== gameDow){
+
+  while(tempDt.weekday() !== gameDow) {
     tempDt.add('days', 1);
   }
 
@@ -2457,8 +2599,8 @@ function getNearestDate(weekday){
   return tempDt.format('YYYY-MM-DD');
 };
 
-function parseDateFromString(shortDateStr){
-  if(!shortDateStr || shortDateStr.split(' ').length !== 2){
+function parseDateFromString(shortDateStr) {
+  if(!shortDateStr || shortDateStr.split(' ').length !== 2) {
     return null;
   }
 
@@ -2476,7 +2618,7 @@ function parseDateFromString(shortDateStr){
 
   date = moment(date);
 
-  if(!timeOfDay || timeOfDay.split(':').length !== 2){
+  if(!timeOfDay || timeOfDay.split(':').length !== 2) {
     return null;
   }
 
@@ -2490,6 +2632,5 @@ function parseDateFromString(shortDateStr){
 
   return date.valueOf();
 };
-
 
 module.exports = apiRouteController;

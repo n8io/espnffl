@@ -4,13 +4,13 @@ var path = require("path");
  * Loads configuration into nconf global obj based on a base file name
  * @return {void}
  */
-var configurationLoader = function(){};
+var configurationLoader = function() {};
 
-configurationLoader.load = function(){
+configurationLoader.load = function() {
   var configFileBaseName = 'config';
 
-  /** Default to 'development' in case it is not supplied */
-  config.defaults({ 'NODE_ENV': 'development' });
+  /** Default to 'dev' in case it is not supplied */
+  config.defaults({'NODE_ENV': 'dev'});
 
   // Read in any command line args for overrides
   config.argv();
@@ -19,12 +19,12 @@ configurationLoader.load = function(){
   var envConfig = configFileBaseName + '.' + config.get('NODE_ENV') + '.json';
   config.file({
     file: envConfig,
-    dir: path.join(__dirname,'..', 'config'),
+    dir: path.join(__dirname, '..', 'config'),
     search: true
   });
 
   // Load default configuration from file system
-  var defaultConfigPath = path.join(__dirname,'..', 'config', configFileBaseName + '.base.json');
+  var defaultConfigPath = path.join(__dirname, '..', 'config', configFileBaseName + '.base.json');
   config.file('default', defaultConfigPath);
 
   config.set('envConfig', envConfig);
