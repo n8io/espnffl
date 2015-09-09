@@ -1,5 +1,5 @@
 var request = require('request').defaults({jar: true});
-var _ = require('underscore'),
+var _ = require('lodash'),
   cheerio = require('cheerio'),
   async = require('async'),
   colors = require('colors'),
@@ -446,35 +446,46 @@ var authenticateEspnCredentials = function(callback) {
 
   var reqOptions = {
     // url: 'https://r.espn.go.com/members/util/loginUser',
-    url: 'https://registerdisney.go.com/jgc/v2/client/ESPN-FANTASYLM-PROD/guest/login?langPref=en-US'
+    method: 'GET',
+    url: 'https://registerdisney.go.com/jgc/v2/client/ESPN-FANTASYLM-PROD/guest/login',
+    qs: {
+      langPref: 'en-US'
+    },
+    headers: {
+      'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/45.0.2454.85 Safari/537.36'
+    },
+    json: true
   };
+
   console.log('Attempting to authenticate ESPN credentials...'.grey);
 
   async.series(
     {
       loginOptions: function(cb) {
-        var newOpts = {
-          method: 'OPTIONS',
-          uri: reqOptions.url
-        };
+        var newOpts = _.assign(
+            {
+              url: reqOptions.url,
+              qs: reqOptions.qs
+            },
+            {
+              method: 'OPTIONS'
+            }
+          );
+
         request(newOpts, function(err, result, body) {
           if(err) {
             console.log('Failed to authenticate.'.red);
-            cb(err, null);
 
-            return;
+            return cb(err, null);
           }
           else if(result.statusCode !== 200) {
-            console.log('Failed authentication with given credentials.'.red);
-            console.log(body.red);
-            cb(body, null);
+            console.log('Failed authentication with given credentials (OPTIONS)'.red);
+            console.log(JSON.stringify(body, null, 2));
 
-            return;
+            return cb(body, null);
           }
 
-          cb();
-
-          return;
+          return cb();
         });
       },
       loginPost: function(cb) {
@@ -482,36 +493,37 @@ var authenticateEspnCredentials = function(callback) {
           loginValue: options.access.username,
           password: options.access.password
         };
-        var newOpts = {
-          uri: reqOptions.url,
-          json: authOptions
-        }
-        request.post(newOpts, function(err, result, body) {
+
+        var newOpts = _.assign(reqOptions,
+            {
+              method: 'POST',
+              json: authOptions
+            }
+          );
+
+        request(newOpts, function(err, result, body) {
           if(err) {
             console.log('Failed to authenticate.'.red);
-            cb(err, null);
 
-            return;
+            return cb(err, null);
           }
           else if(result.statusCode !== 200) {
-            console.log('Failed authentication with given credentials.'.red);
-            // console.log(body.red);
-            cb(body, null);
+            console.log('Failed authentication with given credentials (POST)'.red);
+            console.log(JSON.stringify(body, null, 2));
 
-            return;
+            return cb(body, null);
           }
 
           console.log('Passed authentication. Successfully logged in as '.green + (options.access.username).green);
           lastAuthDate = moment();
-          cb();
 
-          return;
+          return cb();
         });
       }
     },
     // On Complete
     function(err, results) {
-      callback(err, results);
+      return callback(err, results);
     }
   );
 };
@@ -694,7 +706,7 @@ var scrapeTransactionCounter = function(callback) {
       return;
     }
 
-    var html = body.split("</td></td>").join("</td>");
+    var html = body.split('</td></td>').join('</td>');
 
     $ = cheerio.load(html);
 
@@ -1477,7 +1489,7 @@ var scrapeTeamRoster = function(callback) {
       }
       else {
         $(td).find('a').remove();
-        txt = _.str.trim($(td).text().replace(/\s+/g, " "), [' ', ',', '*']);
+        txt = _.str.trim($(td).text().replace(/\s+/g, ' '), [' ', ',', '*']);
 
         if(isPastRoster) {
           team = _.str.trim(txt.split(' ')[2]).toUpperCase();
@@ -2192,169 +2204,169 @@ function getPlayerId(str) {
 function getTeamInfoFromShortName(shortName) {
   var teams = [
     {
-      "id": "60026",
-      "name": "Seahawks",
-      "key": "SEA"
+      'id': '60026',
+      'name': 'Seahawks',
+      'key': 'SEA'
     },
     {
-      "id": "60029",
-      "name": "Panthers",
-      "key": "CAR"
+      'id': '60029',
+      'name': 'Panthers',
+      'key': 'CAR'
     },
     {
-      "id": "60012",
-      "name": "Chiefs",
-      "key": "KC"
+      'id': '60012',
+      'name': 'Chiefs',
+      'key': 'KC'
     },
     {
-      "id": "60004",
-      "name": "Bengals",
-      "key": "CIN"
+      'id': '60004',
+      'name': 'Bengals',
+      'key': 'CIN'
     },
     {
-      "id": "60022",
-      "name": "Cardinals",
-      "key": "ARI"
+      'id': '60022',
+      'name': 'Cardinals',
+      'key': 'ARI'
     },
     {
-      "id": "60025",
-      "name": "49ers",
-      "key": "SF"
+      'id': '60025',
+      'name': '49ers',
+      'key': 'SF'
     },
     {
-      "id": "60014",
-      "name": "Rams",
-      "key": "STL"
+      'id': '60014',
+      'name': 'Rams',
+      'key': 'STL'
     },
     {
-      "id": "60002",
-      "name": "Bills",
-      "key": "BUF"
+      'id': '60002',
+      'name': 'Bills',
+      'key': 'BUF'
     },
     {
-      "id": "60017",
-      "name": "Patriots",
-      "key": "NE"
+      'id': '60017',
+      'name': 'Patriots',
+      'key': 'NE'
     },
     {
-      "id": "60011",
-      "name": "Colts",
-      "key": "IND"
+      'id': '60011',
+      'name': 'Colts',
+      'key': 'IND'
     },
     {
-      "id": "60018",
-      "name": "Saints",
-      "key": "NO"
+      'id': '60018',
+      'name': 'Saints',
+      'key': 'NO'
     },
     {
-      "id": "60027",
-      "name": "Buccaneers",
-      "key": "TB"
+      'id': '60027',
+      'name': 'Buccaneers',
+      'key': 'TB'
     },
     {
-      "id": "60005",
-      "name": "Browns",
-      "key": "CLE"
+      'id': '60005',
+      'name': 'Browns',
+      'key': 'CLE'
     },
     {
-      "id": "60007",
-      "name": "Broncos",
-      "key": "DEN"
+      'id': '60007',
+      'name': 'Broncos',
+      'key': 'DEN'
     },
     {
-      "id": "60033",
-      "name": "Ravens",
-      "key": "BAL"
+      'id': '60033',
+      'name': 'Ravens',
+      'key': 'BAL'
     },
     {
-      "id": "60019",
-      "name": "Giants",
-      "key": "NYG"
+      'id': '60019',
+      'name': 'Giants',
+      'key': 'NYG'
     },
     {
-      "id": "60023",
-      "name": "Steelers",
-      "key": "PIT"
+      'id': '60023',
+      'name': 'Steelers',
+      'key': 'PIT'
     },
     {
-      "id": "60010",
-      "name": "Titans",
-      "key": "TEN"
+      'id': '60010',
+      'name': 'Titans',
+      'key': 'TEN'
     },
     {
-      "id": "60015",
-      "name": "Dolphins",
-      "key": "MIA"
+      'id': '60015',
+      'name': 'Dolphins',
+      'key': 'MIA'
     },
     {
-      "id": "60008",
-      "name": "Lions",
-      "key": "DET"
+      'id': '60008',
+      'name': 'Lions',
+      'key': 'DET'
     },
     {
-      "id": "60028",
-      "name": "Redskins",
-      "key": "WSH"
+      'id': '60028',
+      'name': 'Redskins',
+      'key': 'WSH'
     },
     {
-      "id": "60028",
-      "name": "Redskins",
-      "key": "WAS"
+      'id': '60028',
+      'name': 'Redskins',
+      'key': 'WAS'
     },
     {
-      "id": "60009",
-      "name": "Packers",
-      "key": "GB"
+      'id': '60009',
+      'name': 'Packers',
+      'key': 'GB'
     },
     {
-      "id": "60013",
-      "name": "Raiders",
-      "key": "OAK"
+      'id': '60013',
+      'name': 'Raiders',
+      'key': 'OAK'
     },
     {
-      "id": "60021",
-      "name": "Eagles",
-      "key": "PHI"
+      'id': '60021',
+      'name': 'Eagles',
+      'key': 'PHI'
     },
     {
-      "id": "60020",
-      "name": "Jets",
-      "key": "NYJ"
+      'id': '60020',
+      'name': 'Jets',
+      'key': 'NYJ'
     },
     {
-      "id": "60006",
-      "name": "Cowboys",
-      "key": "DAL"
+      'id': '60006',
+      'name': 'Cowboys',
+      'key': 'DAL'
     },
     {
-      "id": "60003",
-      "name": "Bears",
-      "key": "CHI"
+      'id': '60003',
+      'name': 'Bears',
+      'key': 'CHI'
     },
     {
-      "id": "60024",
-      "name": "Chargers",
-      "key": "SD"
+      'id': '60024',
+      'name': 'Chargers',
+      'key': 'SD'
     },
     {
-      "id": "60034",
-      "name": "Texans",
-      "key": "HOU"
+      'id': '60034',
+      'name': 'Texans',
+      'key': 'HOU'
     },
     {
-      "id": "60001",
-      "name": "Falcons",
-      "key": "ATL"
+      'id': '60001',
+      'name': 'Falcons',
+      'key': 'ATL'
     },
     {
-      "id": "60030",
-      "name": "Jaguars",
-      "key": "JAC"
+      'id': '60030',
+      'name': 'Jaguars',
+      'key': 'JAC'
     },
     {
-      "id": "60016",
-      "name": "Vikings",
-      "key": "MIN"
+      'id': '60016',
+      'name': 'Vikings',
+      'key': 'MIN'
     }
   ];
 

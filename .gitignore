@@ -25,11 +25,9 @@ public/js/**.min.map.js
 public/js/script.min.js
 
 # Configuration files
-**/*.development.json
-**/*.staging.json
-**/*.production.json
-**/*.uat.json
-**/*.ci.json
+config.*.json
+!config.base.json
+!config.sample.json
 
 #designer garbage
 .DS_Store
